@@ -1,6 +1,6 @@
 {
   "name": "@tx-kit/sdk",
-  "version": "0.0.1",
+  "version": "0.1.0-alpha.0",
   "license": "MIT",
   "author": "uplink (https://uplink.wtf)",
   "main": "./dist/src/index.js",
