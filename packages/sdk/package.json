@@ -1,0 +1,70 @@
+{
+  "name": "@tx-kit/sdk",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "uplink (https://uplink.wtf)",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./dist/src/index.js",
+    "./constants": "./dist/src/constants.js",
+    "./abi": "./dist/src/abi/abi.js",
+    "./errors": "./dist/src/errors.js",
+    "./types": "./dist/src/types.js",
+    "./utils": "./dist/src/utils/index.js",
+    "./utils/validation": "./dist/src/utils/validation.js"
+  },
+  "typesVersions": {
+    "*": {
+      "constants": [
+        "./dist/src/constants.d.ts"
+      ],
+      "abi": [
+        "./dist/src/abi/abi.d.ts"
+      ],
+      "errors": [
+        "./dist/src/errors.d.ts"
+      ],
+      "types": [
+        "./dist/src/types.d.ts"
+      ],
+      "utils": [
+        "./dist/src/utils/index.d.ts"
+      ],
+      "utils/validation": [
+        "./dist/src/utils/validation.d.ts"
+      ]
+    }
+  },
+  "keywords": [
+    "tx-kit",
+    "uplink",
+    "ethereum",
+    "transmissions"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf dist && tsc",
+    "vitest": "vitest fork"
+  },
+  "peerDependenciesMeta": {
+    "viem": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@urql/core": "^4.3.0",
+    "base-64": "^1.0.0",
+    "graphql": "^16.8.1",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/base-64": "^1.0.1",
+    "@types/lodash": "^4.14.200",
+    "@viem/anvil": "^0.0.9",
+    "vitest": "^1.6.0"
+  }
+}

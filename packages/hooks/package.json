@@ -1,0 +1,25 @@
+{
+  "name": "@tx-kit/hooks",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "rm -rf dist && tsc"
+  },
+  "dependencies": {
+    "@tx-kit/sdk": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "17.x.x || 18.x.x",
+    "viem": "^1.0.0 || ^2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "viem": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.24"
+  }
+}
