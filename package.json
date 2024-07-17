@@ -12,7 +12,6 @@
     "lerna-version": "lerna version --no-private",
     "lerna-build": "pnpm prettier:fix && lerna run build",
     "test": "jest --testPathIgnorePatterns '.*fork.*'",
-    "test-fork": "jest --testPathPattern '.*fork.*'",
     "vitest": "vitest fork --config ./packages/sdk/vitest.config.ts"
   },
   "workspaces": [

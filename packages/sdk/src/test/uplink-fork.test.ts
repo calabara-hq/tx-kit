@@ -3,7 +3,7 @@ import { UplinkClient } from '../client/uplink'
 import { baseSepolia } from 'viem/chains'
 import { Abi, Account, Address, Chain, ContractFunctionExecutionError, decodeEventLog, encodeAbiParameters, encodeEventTopics, isAddress, parseEther, PublicClient, Transport, WalletClient, zeroAddress } from 'viem'
 import { ChannelFeeArguments, ChannelLogicArguments, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, SetupAction } from '../types'
-import { getChannelFactoryAddress, getCustomFeesAddress, NATIVE_TOKEN } from "../constants"
+import { getChannelFactoryAddress, getCustomFeesAddress, getDynamicLogicAddress, NATIVE_TOKEN } from "../constants"
 import { baseSepoliaWETH, GENERIC_ERC20_ABI, balanceOfERC20, allowanceOfERC20, mintERC20, setERC20Approval, ALICE } from "./forkUtils"
 import { UniformInteractionPower } from "../utils/logic"
 import { channelAbi, channelFactoryAbi, finiteChannelAbi, infiniteChannelAbi } from "../abi/abi"
@@ -12,7 +12,7 @@ import { describe, expect, test, beforeAll, beforeEach, afterEach, vi } from 'vi
 
 
 const CUSTOM_FEES = getCustomFeesAddress(baseSepolia.id)
-const DYNAMIC_LOGIC = zeroAddress
+const DYNAMIC_LOGIC = getDynamicLogicAddress(baseSepolia.id)
 
 const erc20BalanceOfData = encodeAbiParameters([{ type: "address", name: "address" }], [zeroAddress])
 
@@ -33,8 +33,8 @@ const setupActions: SetupAction[] = [
     },
     {
         logicContract: DYNAMIC_LOGIC,
-        creatorLogic: [],//[new UniformInteractionPower(BigInt(10)).ifResultOf(baseSepoliaWETH, '0x70a08231', erc20BalanceOfData).gt(BigInt(1))],
-        minterLogic: []//[new UniformInteractionPower(BigInt(10)).ifResultOf(baseSepoliaWETH, '0x70a08231', erc20BalanceOfData).gt(BigInt(1))]
+        creatorLogic: [new UniformInteractionPower(BigInt(10)).ifResultOf(baseSepoliaWETH, '0x70a08231', erc20BalanceOfData).gt(BigInt(1))],
+        minterLogic: [new UniformInteractionPower(BigInt(10)).ifResultOf(baseSepoliaWETH, '0x70a08231', erc20BalanceOfData).gt(BigInt(1))]
     }
 ]
 

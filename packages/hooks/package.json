@@ -4,9 +4,27 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "MIT",
+  "author": "uplink (https://uplink.wtf)",
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/calabara-hq/tx-kit.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calabara-hq/tx-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/calabara-hq/tx-kit/issues"
+  },
   "scripts": {
     "build": "rm -rf dist && tsc"
   },
+  "keywords": [
+    "tx-kit",
+    "uplink",
+    "ethereum",
+    "transmissions"
+  ],
   "dependencies": {
     "@tx-kit/sdk": "workspace:*"
   },
