@@ -75,5 +75,5 @@
     "@viem/anvil": "^0.0.9",
     "vitest": "^1.6.0"
   },
-  "gitHead": "42396049d3f8f0b015c51cc55937e2dd16eb02ed"
+  "gitHead": "d1bfd7109885f94959c6714ec74df4fcf26dd6a8"
 }
