@@ -17,7 +17,8 @@
     "url": "https://github.com/calabara-hq/tx-kit/issues"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc"
+    "build": "rm -rf dist && tsc",
+    "analyze": "source-map-explorer 'dist/**/*.js' --no-border-checks --html analyze.html"
   },
   "keywords": [
     "tx-kit",
@@ -26,7 +27,7 @@
     "transmissions"
   ],
   "dependencies": {
-    "@tx-kit/sdk": "0.1.0-alpha.0"
+    "@tx-kit/sdk": "workspace:*"
   },
   "peerDependencies": {
     "react": "17.x.x || 18.x.x",

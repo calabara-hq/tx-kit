@@ -2,14 +2,16 @@ import { Address, decodeEventLog } from 'viem'
 import { useCallback, useContext, useState } from 'react'
 import { ContractExecutionStatus, RequestError } from './types'
 import {
-  channelFactoryAbi,
   CreateInfiniteChannelConfig,
   UpdateChannelMetadataConfig,
-  channelAbi,
   SetChannelFeeConfig,
-  infiniteChannelAbi,
   UpdateInfiniteChannelTransportLayerConfig,
 } from '@tx-kit/sdk'
+import {
+  channelAbi,
+  channelFactoryAbi,
+  infiniteChannelAbi,
+} from '@tx-kit/sdk/abi'
 import { TransmissionsContext } from './context'
 import { getTransmissionsClient } from './utils'
 

@@ -6,7 +6,7 @@ import { ChannelFeeArguments, ChannelLogicArguments, CreateFiniteChannelConfig, 
 import { getChannelFactoryAddress, getCustomFeesAddress, getDynamicLogicAddress, NATIVE_TOKEN } from "../constants"
 import { baseSepoliaWETH, GENERIC_ERC20_ABI, balanceOfERC20, allowanceOfERC20, mintERC20, setERC20Approval, ALICE } from "./forkUtils"
 import { UniformInteractionPower } from "../utils/logic"
-import { channelAbi, channelFactoryAbi, finiteChannelAbi, infiniteChannelAbi } from "../abi/abi"
+import { channelAbi, channelFactoryAbi, finiteChannelAbi, infiniteChannelAbi } from "../abi/index"
 
 import { describe, expect, test, beforeAll, beforeEach, afterEach, vi } from 'vitest'
 

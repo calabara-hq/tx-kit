@@ -3,8 +3,9 @@
   "version": "0.1.0-alpha.0",
   "license": "MIT",
   "author": "uplink (https://uplink.wtf)",
-  "main": "./dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "publishConfig": {
     "access": "public"
   },
@@ -17,33 +18,33 @@
     "url": "https://github.com/calabara-hq/tx-kit/issues"
   },
   "exports": {
-    ".": "./dist/src/index.js",
-    "./constants": "./dist/src/constants.js",
-    "./abi": "./dist/src/abi/abi.js",
-    "./errors": "./dist/src/errors.js",
-    "./types": "./dist/src/types.js",
-    "./utils": "./dist/src/utils/index.js",
-    "./utils/validation": "./dist/src/utils/validation.js"
+    ".": "./dist/index.js",
+    "./constants": "./dist/constants.js",
+    "./abi": "./dist/abi/index.js",
+    "./errors": "./dist/errors.js",
+    "./types": "./dist/types.js",
+    "./utils": "./dist/utils/index.js",
+    "./utils/validation": "./dist/utils/validation.js"
   },
   "typesVersions": {
     "*": {
       "constants": [
-        "./dist/src/constants.d.ts"
+        "./dist/constants.d.ts"
       ],
       "abi": [
-        "./dist/src/abi/abi.d.ts"
+        "./dist/abi/index.d.ts"
       ],
       "errors": [
-        "./dist/src/errors.d.ts"
+        "./dist/errors.d.ts"
       ],
       "types": [
-        "./dist/src/types.d.ts"
+        "./dist/types.d.ts"
       ],
       "utils": [
-        "./dist/src/utils/index.d.ts"
+        "./dist/utils/index.d.ts"
       ],
       "utils/validation": [
-        "./dist/src/utils/validation.d.ts"
+        "./dist/utils/validation.d.ts"
       ]
     }
   },
@@ -56,6 +57,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm -rf dist && tsc",
+    "analyze": "source-map-explorer 'dist/**/*.js' --no-border-checks --html analyze.html",
     "vitest": "vitest fork"
   },
   "peerDependenciesMeta": {

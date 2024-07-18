@@ -1,5 +1,5 @@
-import { Address, encodeAbiParameters, encodeFunctionData, Hex, zeroAddress, zeroHash } from "viem"
-import { channelAbi } from "../abi/abi"
+import { Address, encodeFunctionData, Hex, zeroAddress, zeroHash } from "viem"
+import { channelAbi } from "../abi/index"
 import { encodeDynamicLogicInputs } from "../utils/logic"
 import { encodeCustomFeeInputs } from "../utils/fees"
 import { isChannelFeeArguments, isChannelLogicArguments, SetupAction } from "../types"

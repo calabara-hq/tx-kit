@@ -2,19 +2,18 @@ import { Address, decodeEventLog } from 'viem'
 import { useCallback, useContext, useState } from 'react'
 import { ContractExecutionStatus, RequestError } from './types'
 import {
-  UplinkClient,
-  channelFactoryAbi,
   CreateTokenConfig,
-  TransmissionsClient,
-  channelAbi,
-  DeferredTokenIntent,
   DeferredTokenIntentWithSignature,
-  MintTokenConfig,
   MintTokenBatchConfig,
-  infiniteChannelAbi,
-  finiteChannelAbi,
   SponsorTokenConfig,
 } from '@tx-kit/sdk'
+import {
+  channelAbi,
+  channelFactoryAbi,
+  infiniteChannelAbi,
+  finiteChannelAbi,
+} from '@tx-kit/sdk/abi'
+
 import { TransmissionsContext } from './context'
 import { getTransmissionsClient } from './utils'
 

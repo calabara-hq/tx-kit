@@ -19,7 +19,7 @@ import {
 } from '../errors'
 import { TransmissionsClientConfig, TransactionConfig, TransactionOverrides, TransactionFormat, CallData, MulticallConfig } from '../types';
 import { TransactionType } from '../constants';
-import { channelAbi } from '../abi/abi';
+import { channelAbi } from '../abi/index';
 
 
 

@@ -14,7 +14,7 @@ import { getChannelFactoryAddress, getCustomFeesAddress, INTENT_DURATION, SUPPOR
 import { CallData, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, CreateTokenConfig, DeferredTokenIntent, DeferredTokenIntentWithSignature, MintTokenBatchConfig, MintTokenConfig, SetChannelFeeConfig, SetChannelLogicConfig, SponsorTokenConfig, TransactionConfig, TransactionFormat, TransactionOverridesDict, TransmissionsClientConfig, UpdateChannelMetadataConfig, UpdateInfiniteChannelTransportLayerConfig, WithdrawRewardsConfig } from "../types"
 import { TransactionFailedError, UnsupportedChainIdError } from '../errors'
 
-import { channelAbi, channelFactoryAbi, customFeesAbi, dynamicLogicAbi, finiteChannelAbi, infiniteChannelAbi, rewardsAbi } from '../abi/abi'
+import { channelAbi, channelFactoryAbi, customFeesAbi, dynamicLogicAbi, finiteChannelAbi, infiniteChannelAbi, rewardsAbi } from '../abi/index'
 import { validateAddress, validateCreateTokenInputs, validateFiniteChannelInputs, validateInfiniteChannelInputs, validateInfiniteTransportLayer, validateMintTokenBatchInputs, validateSetFeeInputs, validateSetLogicInputs, validateSponsorTokenInputs, validateWithdrawRewardsInputs } from '../utils/validate'
 import { BaseClientMixin, BaseGasEstimatesMixin, BaseTransactions } from './base'
 import { applyMixins } from './mixin'

@@ -7,6 +7,6 @@ export { TransmissionsClient, UplinkClient, DownlinkClient }
 export * from './types'
 export * from './errors'
 export * from './utils/validate'
-export * from './abi/abi'
+
 export * from './constants'
 export * from './subgraph/types'

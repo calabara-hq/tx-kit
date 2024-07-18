@@ -19,16 +19,11 @@ import {
 } from 'viem'
 
 import { UplinkClient } from "../client/uplink";
-import { InvalidConfigError, MissingPublicClientError, MissingWalletClientError, UnsupportedChainIdError } from '../errors';
-import { CreateFiniteChannelConfig, CreateInfiniteChannelConfig, SponsorTokenConfig } from '../types';
-import { createFiniteTransportLayerInput, createInfiniteTransportLayerInput } from '../utils/transport';
+import { MissingPublicClientError, MissingWalletClientError } from '../errors';
+import { CreateFiniteChannelConfig, CreateInfiniteChannelConfig } from '../types';
 import { MockViemContract } from './mocks/viemContract';
 import { uplinkActions, downlinkActions } from './mocks/mocks'
-import { validateAddress, validateFiniteChannelInputs, validateInfiniteChannelInputs } from '../utils/validate';
 import { baseSepolia, foundry } from 'viem/chains';
-import { privateKeyToAccount } from 'viem/accounts';
-import { randomBytes } from 'crypto';
-import { TransmissionsClient } from '../client';
 import { NATIVE_TOKEN } from '../constants';
 
 const testClient = createTestClient({
