@@ -214,3 +214,110 @@ export const useSponsorTokenWithETH = () => {
 
   return { sponsorTokenWithETH, tokenId, status, txHash, error }
 }
+
+export const useMintTokenBatchWithERC20 = () => {
+  const context = useContext(TransmissionsContext)
+  const transmissionsClient = getTransmissionsClient(context).uplinkClient
+
+  const [status, setStatus] = useState<ContractExecutionStatus>()
+  const [txHash, setTxHash] = useState<string>()
+  const [error, setError] = useState<RequestError>()
+
+  const mintTokenBatchWithERC20 = useCallback(
+    async (args: MintTokenBatchConfig) => {
+      if (!transmissionsClient) throw new Error('Invalid transmissions client')
+      try {
+        setStatus('pendingApproval')
+        setError(undefined)
+        setTxHash(undefined)
+
+        const { txHash: hash } =
+          await transmissionsClient.submitMintTokenBatchWithERC20Transaction(
+            args,
+          )
+        setStatus('txInProgress')
+        setTxHash(hash)
+
+        const events = await transmissionsClient.getTransactionEvents({
+          txHash: hash,
+          eventTopics: transmissionsClient.eventTopics.tokenMinted,
+        })
+
+        const event = events?.[0]
+        const decodedLog = event
+          ? decodeEventLog({
+              abi: [...infiniteChannelAbi, ...finiteChannelAbi],
+              data: event.data,
+              topics: event.topics,
+            })
+          : undefined
+
+        if (decodedLog?.eventName === 'TokenMinted') {
+          setStatus('complete')
+        }
+
+        return events
+      } catch (e) {
+        setStatus('error')
+        setError(e)
+      }
+    },
+    [transmissionsClient],
+  )
+
+  return { mintTokenBatchWithERC20, status, txHash, error }
+}
+export const useSponsorTokenWithERC20 = () => {
+  const context = useContext(TransmissionsContext)
+  const transmissionsClient = getTransmissionsClient(context).uplinkClient
+
+  const [tokenId, setTokenId] = useState<bigint>()
+  const [status, setStatus] = useState<ContractExecutionStatus>()
+  const [txHash, setTxHash] = useState<string>()
+  const [error, setError] = useState<RequestError>()
+
+  const sponsorTokenWithERC20 = useCallback(
+    async (args: SponsorTokenConfig) => {
+      if (!transmissionsClient) throw new Error('Invalid transmissions client')
+      try {
+        setStatus('pendingApproval')
+        setError(undefined)
+        setTxHash(undefined)
+
+        const { txHash: hash } =
+          await transmissionsClient.submitSponsorTokenWithERC20Transaction(args)
+        setStatus('txInProgress')
+        setTxHash(hash)
+
+        const events = await transmissionsClient.getTransactionEvents({
+          txHash: hash,
+          eventTopics: transmissionsClient.eventTopics.tokenMinted,
+        })
+
+        const event = events?.[0]
+        const decodedLog = event
+          ? decodeEventLog({
+              abi: [...infiniteChannelAbi, ...finiteChannelAbi],
+              data: event.data,
+              topics: event.topics,
+            })
+          : undefined
+
+        const _tokenId =
+          decodedLog?.eventName === 'TokenMinted'
+            ? decodedLog.args.tokenIds[0]
+            : undefined
+
+        setTokenId(_tokenId)
+        setStatus('complete')
+        return { tokenId: _tokenId, events }
+      } catch (e) {
+        setStatus('error')
+        setError(e)
+      }
+    },
+    [transmissionsClient],
+  )
+
+  return { sponsorTokenWithERC20, tokenId, status, txHash, error }
+}
