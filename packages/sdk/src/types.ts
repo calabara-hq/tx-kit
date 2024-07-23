@@ -266,3 +266,11 @@ export type WithdrawRewardsConfig = {
   to: string
   amount: bigint
 } & TransactionOverridesDict
+
+/// utils
+
+export type ApproveERC20Config = {
+  erc20Contract: string
+  spender: string
+  amount: bigint
+} & TransactionOverridesDict

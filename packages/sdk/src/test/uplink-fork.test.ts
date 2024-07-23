@@ -1,10 +1,10 @@
 import { testClient, walletClient, publicClient, BOB, CHANNEL_TREASURY, debugClient, resetBlockchainState, increaseEvmTime } from "./forkUtils"
 import { UplinkClient } from '../client/uplink'
 import { baseSepolia } from 'viem/chains'
-import { Abi, Account, Address, Chain, ContractFunctionExecutionError, decodeEventLog, encodeAbiParameters, encodeEventTopics, isAddress, parseEther, PublicClient, Transport, WalletClient, zeroAddress } from 'viem'
+import { Abi, Account, Address, Chain, ContractFunctionExecutionError, decodeEventLog, encodeAbiParameters, encodeEventTopics, erc20Abi, isAddress, parseEther, PublicClient, Transport, WalletClient, zeroAddress } from 'viem'
 import { ChannelFeeArguments, ChannelLogicArguments, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, SetupAction } from '../types'
 import { getChannelFactoryAddress, getCustomFeesAddress, getDynamicLogicAddress, NATIVE_TOKEN } from "../constants"
-import { baseSepoliaWETH, GENERIC_ERC20_ABI, balanceOfERC20, allowanceOfERC20, mintERC20, setERC20Approval, ALICE } from "./forkUtils"
+import { baseSepoliaWETH, WETH_ABI, balanceOfERC20, allowanceOfERC20, mintERC20, setERC20Approval, ALICE } from "./forkUtils"
 import { UniformInteractionPower } from "../utils/logic"
 import { channelAbi, channelFactoryAbi, finiteChannelAbi, infiniteChannelAbi } from "../abi/index"
 
@@ -150,10 +150,7 @@ describe("Finite Channel creation", () => {
         }
 
         await mintERC20(baseSepoliaWETH, ALICE, parseEther('10'));
-
         await setERC20Approval(baseSepoliaWETH, getChannelFactoryAddress(84532), ALICE, parseEther('10'));
-
-        await allowanceOfERC20(baseSepoliaWETH, getChannelFactoryAddress(84532), ALICE);
 
         const client = createClient(ALICE);
         const { event, contractAddress } = await client.createFiniteChannel(args)
@@ -557,6 +554,33 @@ describe("Channel", () => {
             })
 
             expect(events.length).toEqual(4)
+
+        })
+    })
+
+
+    describe.only("approve erc20", () => {
+        test("approve erc20", async () => {
+            const client = createClient(ALICE)
+            await mintERC20(baseSepoliaWETH, ALICE, parseEther('10'))
+            const { contractAddress: targetInfiniteChannel } = await client.createInfiniteChannel(generateInfiniteChannelArgs())
+            const { event } = await client.approveERC20({
+                erc20Contract: baseSepoliaWETH,
+                spender: targetInfiniteChannel,
+                amount: parseEther('0.000666')
+            })
+
+            const log = decodeEventLog({
+                abi: erc20Abi,
+                data: event.data,
+                topics: event.topics,
+            })
+
+            expect(log.eventName).toEqual('Approval')
+
+            const allowance = await allowanceOfERC20(baseSepoliaWETH, targetInfiniteChannel, ALICE)
+
+            expect(allowance).toEqual(parseEther('0.000666'))
 
         })
     })

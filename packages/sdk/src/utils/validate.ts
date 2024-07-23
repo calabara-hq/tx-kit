@@ -1,5 +1,5 @@
 import { InvalidArgumentError } from "../errors";
-import { ChannelFeeArguments, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, CreateTokenConfig, DeferredTokenIntentWithSignature, DynamicLogicInputs, FiniteTransportLayer, InfiniteTransportLayer, isChannelFeeArguments, isChannelLogicArguments, LogicInteractionPowerTypes, MintTokenBatchConfig, SetupAction, SponsorTokenConfig, WithdrawRewardsConfig } from "../types";
+import { ApproveERC20Config, ChannelFeeArguments, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, CreateTokenConfig, DeferredTokenIntentWithSignature, DynamicLogicInputs, FiniteTransportLayer, InfiniteTransportLayer, isChannelFeeArguments, isChannelLogicArguments, LogicInteractionPowerTypes, MintTokenBatchConfig, SetupAction, SponsorTokenConfig, WithdrawRewardsConfig } from "../types";
 import { isAddress, recoverTypedDataAddress, zeroAddress } from 'viem'
 import { MAX_PRECISION_DECIMALS } from "../constants";
 import { roundToDecimals } from "./numbers";
@@ -273,3 +273,11 @@ export const validateWithdrawRewardsInputs = (inputs: WithdrawRewardsConfig): vo
     }
 }
 
+export const validateApproveERC20Inputs = (inputs: ApproveERC20Config): void => {
+    validateAddress(inputs.erc20Contract)
+    validateAddress(inputs.spender)
+
+    if (inputs.amount <= BigInt(0)) {
+        throw new InvalidArgumentError(`Invalid amount: ${inputs.amount}. Amount must be greater than 0`)
+    }
+}

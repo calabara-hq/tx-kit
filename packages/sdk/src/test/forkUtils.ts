@@ -7,6 +7,7 @@ import {
     createPublicClient,
     createTestClient,
     createWalletClient,
+    erc20Abi,
     formatTransactionRequest,
     Hex,
     http
@@ -103,7 +104,7 @@ export const [ALICE_PK, BOB_PK] = ANVIL_ACCOUNTS_PK
 
 export const baseSepoliaWETH = '0x4200000000000000000000000000000000000006'
 
-export const GENERIC_ERC20_ABI = [
+export const WETH_ABI = [
     {
         "constant": false,
         "inputs": [{ "name": "payableAmount", "type": "uint256" }],
@@ -112,49 +113,23 @@ export const GENERIC_ERC20_ABI = [
         "payable": true,
         "stateMutability": "payable",
         "type": "function"
-    },
-    {
-        "constant": true,
-        "inputs": [{ "name": "account", "type": "address" }],
-        "name": "balanceOf",
-        "outputs": [{ "name": "", "type": "uint256" }],
-        "payable": false,
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "constant": false,
-        "inputs": [{ "internalType": "address", "name": "guy", "type": "address" }, { "internalType": "uint256", "name": "wad", "type": "uint256" }],
-        "name": "approve",
-        "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-        "payable": false,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "constant": true,
-        "inputs": [{ "internalType": "address", "name": "", "type": "address" }, { "internalType": "address", "name": "", "type": "address" }],
-        "name": "allowance",
-        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-        "payable": false,
-        "stateMutability": "view",
-        "type": "function"
     }
 ] as Abi;
 
 export const balanceOfERC20 = async (token: Address, user: Address) => {
     await publicClient.readContract({
         address: token,
-        abi: GENERIC_ERC20_ABI,
+        abi: erc20Abi,
         functionName: 'balanceOf',
         args: [user] // Replace with actual account address
     });
 }
 
+
 export const allowanceOfERC20 = async (token: Address, contract: Address, user: Address) => {
-    await publicClient.readContract({
+    return publicClient.readContract({
         address: token,
-        abi: GENERIC_ERC20_ABI,
+        abi: erc20Abi,
         functionName: 'allowance',
         args: [user, contract]
     })
@@ -164,7 +139,7 @@ export const allowanceOfERC20 = async (token: Address, contract: Address, user: 
 export const mintERC20 = async (token: Address, user: Address, amount: bigint) => {
     await walletClient(user).writeContract({
         address: token,
-        abi: GENERIC_ERC20_ABI,
+        abi: WETH_ABI,
         functionName: 'deposit',
         args: [amount],
         value: amount
@@ -174,7 +149,7 @@ export const mintERC20 = async (token: Address, user: Address, amount: bigint) =
 export const setERC20Approval = async (token: Address, contract: Address, user: Address, amount: bigint) => {
     await walletClient(user).writeContract({
         address: token,
-        abi: GENERIC_ERC20_ABI,
+        abi: erc20Abi,
         functionName: 'approve',
         args: [contract, amount]
     })

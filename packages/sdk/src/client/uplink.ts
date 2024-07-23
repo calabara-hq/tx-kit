@@ -5,17 +5,18 @@ import {
     Log,
     decodeEventLog,
     encodeEventTopics,
+    erc20Abi,
     getContract,
     zeroAddress,
 } from 'viem'
 
 import { randomBytes } from 'crypto'
 import { getChannelFactoryAddress, getCustomFeesAddress, INTENT_DURATION, SUPPORTED_CHAIN_IDS, TransactionType } from "../constants"
-import { CallData, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, CreateTokenConfig, DeferredTokenIntent, DeferredTokenIntentWithSignature, MintTokenBatchConfig, MintTokenConfig, SetChannelFeeConfig, SetChannelLogicConfig, SponsorTokenConfig, TransactionConfig, TransactionFormat, TransactionOverridesDict, TransmissionsClientConfig, UpdateChannelMetadataConfig, UpdateInfiniteChannelTransportLayerConfig, WithdrawRewardsConfig } from "../types"
+import { ApproveERC20Config, CallData, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, CreateTokenConfig, DeferredTokenIntent, DeferredTokenIntentWithSignature, MintTokenBatchConfig, MintTokenConfig, SetChannelFeeConfig, SetChannelLogicConfig, SponsorTokenConfig, TransactionConfig, TransactionFormat, TransactionOverridesDict, TransmissionsClientConfig, UpdateChannelMetadataConfig, UpdateInfiniteChannelTransportLayerConfig, WithdrawRewardsConfig } from "../types"
 import { TransactionFailedError, UnsupportedChainIdError } from '../errors'
 
 import { channelAbi, channelFactoryAbi, customFeesAbi, dynamicLogicAbi, finiteChannelAbi, infiniteChannelAbi, rewardsAbi } from '../abi/index'
-import { validateAddress, validateCreateTokenInputs, validateFiniteChannelInputs, validateInfiniteChannelInputs, validateInfiniteTransportLayer, validateMintTokenBatchInputs, validateSetFeeInputs, validateSetLogicInputs, validateSponsorTokenInputs, validateWithdrawRewardsInputs } from '../utils/validate'
+import { validateAddress, validateApproveERC20Inputs, validateCreateTokenInputs, validateFiniteChannelInputs, validateInfiniteChannelInputs, validateInfiniteTransportLayer, validateMintTokenBatchInputs, validateSetFeeInputs, validateSetLogicInputs, validateSponsorTokenInputs, validateWithdrawRewardsInputs } from '../utils/validate'
 import { BaseClientMixin, BaseGasEstimatesMixin, BaseTransactions } from './base'
 import { applyMixins } from './mixin'
 import { encodeDynamicLogicInputs } from '../utils/logic'
@@ -475,6 +476,30 @@ class UplinkTransactions extends BaseTransactions {
         return result
     }
 
+    protected async _approveERC20({
+        erc20Contract,
+        spender,
+        amount,
+        transactionOverrides = {}
+    }: ApproveERC20Config): Promise<TransactionFormat> {
+
+        validateApproveERC20Inputs({ erc20Contract, spender, amount })
+
+        if (this._shouldRequireWalletClient) this._requireWalletClient();
+
+        const result = await this._executeContractFunction({
+            contractAddress: erc20Contract as Address,
+            contractAbi: erc20Abi,
+            functionName: 'approve',
+            functionArgs: [
+                spender,
+                amount
+            ],
+            transactionOverrides
+        })
+        return result
+    }
+
 }
 
 
@@ -559,6 +584,12 @@ export class UplinkClient extends UplinkTransactions {
                 encodeEventTopics({
                     abi: this._rewardsAbi,
                     eventName: 'ERC20Transferred'
+                })[0]
+            ],
+            erc20Approved: [
+                encodeEventTopics({
+                    abi: erc20Abi,
+                    eventName: 'Approval'
                 })[0]
             ]
         }
@@ -1144,6 +1175,41 @@ export class UplinkClient extends UplinkTransactions {
         throw new TransactionFailedError()
     }
 
+
+    async submitApproveERC20Transaction(approveERC20Args: ApproveERC20Config): Promise<{ txHash: Hash }> {
+        const txHash = await this._approveERC20(approveERC20Args)
+
+        if (!this._isContractTransaction(txHash)) {
+            throw new Error('Invalid Response')
+        }
+
+        return { txHash }
+    }
+
+    async approveERC20(approveERC20Args: ApproveERC20Config): Promise<{ event: Log }> {
+        const { txHash } = await this.submitApproveERC20Transaction(approveERC20Args)
+
+        const events = await this.getTransactionEvents({
+            txHash,
+            eventTopics: this.eventTopics.erc20Approved
+        })
+
+        const event = events.length > 0 ? events[0] : undefined
+
+        if (event) {
+            const log = decodeEventLog({
+                abi: erc20Abi,
+                data: event.data,
+                topics: event.topics,
+            })
+            if (log.eventName !== 'Approval') throw new Error()
+            return {
+                event
+            }
+        }
+        throw new TransactionFailedError()
+    }
+
 }
 
 
@@ -1288,6 +1354,14 @@ class UplinkCallData extends UplinkTransactions {
 
     async adminWithdrawFiniteChannelRewards(withdrawRewardsArgs: WithdrawRewardsConfig): Promise<CallData> {
         const result = await this._withdrawFiniteRewardsTransaction(withdrawRewardsArgs)
+        if (this._isCallData(result)) {
+            return result
+        }
+        throw new Error('Invalid Response')
+    }
+
+    async approveERC20(approveERC20Args: ApproveERC20Config): Promise<CallData> {
+        const result = await this._approveERC20(approveERC20Args)
         if (this._isCallData(result)) {
             return result
         }
@@ -1440,6 +1514,14 @@ class UplinkGasEstimates extends UplinkTransactions {
 
     async adminWithdrawFiniteChannelRewards(withdrawRewardsArgs: WithdrawRewardsConfig): Promise<bigint> {
         const gasEstimate = await this._withdrawFiniteRewardsTransaction(withdrawRewardsArgs)
+        if (!this._isBigInt(gasEstimate)) {
+            throw new Error('Invalid Response')
+        }
+        return gasEstimate
+    }
+
+    async approveERC20(approveERC20Args: ApproveERC20Config): Promise<bigint> {
+        const gasEstimate = await this._approveERC20(approveERC20Args)
         if (!this._isBigInt(gasEstimate)) {
             throw new Error('Invalid Response')
         }
