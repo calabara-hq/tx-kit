@@ -16,6 +16,8 @@ export {
   useSponsorTokenWithETH,
 } from './token'
 
+export { useApproveERC20 } from './helpers'
+
 export { useTransmissionsClient } from './client'
 
 export { useMulticall } from './multicall'
