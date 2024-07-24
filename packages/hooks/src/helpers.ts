@@ -14,42 +14,39 @@ export const useApproveERC20 = () => {
   const [txHash, setTxHash] = useState<string>()
   const [error, setError] = useState<RequestError>()
 
+  // let the caller handle errors
+
   const approveERC20 = useCallback(
     async (args: ApproveERC20Config) => {
       if (!transmissionsClient) throw new Error('Invalid transmissions client')
-      try {
-        setStatus('pendingApproval')
-        setError(undefined)
-        setTxHash(undefined)
+      setStatus('pendingApproval')
+      setError(undefined)
+      setTxHash(undefined)
 
-        const { txHash: hash } =
-          await transmissionsClient.submitApproveERC20Transaction(args)
-        setStatus('txInProgress')
-        setTxHash(hash)
+      const { txHash: hash } =
+        await transmissionsClient.submitApproveERC20Transaction(args)
+      setStatus('txInProgress')
+      setTxHash(hash)
 
-        const events = await transmissionsClient.getTransactionEvents({
-          txHash: hash,
-          eventTopics: transmissionsClient.eventTopics.tokenCreated,
+      const events = await transmissionsClient.getTransactionEvents({
+        txHash: hash,
+        eventTopics: transmissionsClient.eventTopics.tokenCreated,
+      })
+
+      const event = events?.[0]
+      const decodedLog = event
+        ? decodeEventLog({
+          abi: erc20Abi,
+          data: event.data,
+          topics: event.topics,
         })
+        : undefined
 
-        const event = events?.[0]
-        const decodedLog = event
-          ? decodeEventLog({
-              abi: erc20Abi,
-              data: event.data,
-              topics: event.topics,
-            })
-          : undefined
-
-        if (decodedLog?.eventName === 'Approval') {
-          setStatus('complete')
-        }
-
-        return events
-      } catch (e) {
-        setStatus('error')
-        setError(e)
+      if (decodedLog?.eventName === 'Approval') {
+        setStatus('complete')
       }
+
+      return events
     },
     [transmissionsClient],
   )
