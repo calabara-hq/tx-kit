@@ -115,7 +115,7 @@ const TOKEN_FRAGMENT = gql`
 
 
 export const _channelQuery = gql`
-    query Channel($id: ID!) {
+    query Channel($id: ID!, $includeTokens: Boolean) {
         channel(id: $id) {
             ...ChannelFragment
             transportLayer {
