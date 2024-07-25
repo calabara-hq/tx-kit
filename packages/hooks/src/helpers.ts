@@ -30,16 +30,16 @@ export const useApproveERC20 = () => {
 
       const events = await transmissionsClient.getTransactionEvents({
         txHash: hash,
-        eventTopics: transmissionsClient.eventTopics.tokenCreated,
+        eventTopics: transmissionsClient.eventTopics.approval,
       })
 
       const event = events?.[0]
       const decodedLog = event
         ? decodeEventLog({
-          abi: erc20Abi,
-          data: event.data,
-          topics: event.topics,
-        })
+            abi: erc20Abi,
+            data: event.data,
+            topics: event.topics,
+          })
         : undefined
 
       if (decodedLog?.eventName === 'Approval') {

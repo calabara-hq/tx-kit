@@ -423,6 +423,8 @@ class UplinkTransactions extends BaseTransactions {
         transactionOverrides = {}
     }: SponsorTokenConfig): Promise<TransactionFormat> {
 
+        mintReferral = mintReferral || zeroAddress
+
         await validateSponsorTokenInputs({ channelAddress, sponsoredToken, to, amount, mintReferral, data })
 
         const { v, r, s } = extractVRSfromSignature(sponsoredToken.signature)
