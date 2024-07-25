@@ -20,11 +20,11 @@ export type Filters = {
 
 export type GetChannelQuery = {
     channelAddress: string
-    includeTokens?: Filters
+    includeTokens?: boolean
 }
 
 export type GetAllChannelsQuery = {
-    includeTokens?: Filters
+    includeTokens?: boolean
 } & Filters
 
 export type GetTokensQuery = {

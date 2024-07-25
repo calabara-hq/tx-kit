@@ -35,6 +35,17 @@ const createClient = () => {
     })
 }
 
+describe("Load channel", () => {
+    test("load channel with tokens", async () => {
+        const client = createClient();
+        const data = await client.getChannel({
+            channelAddress: "0x1EFfA2BA49394028fc8201E888B439E038bC5142",
+            includeTokens: true
+        })
+        expect(data).toBeDefined()
+        expect(Array.isArray(data!.tokens)).toBe(true)
+    })
+})
 
 describe("Load channels", () => {
     test("load all channels", async () => {
