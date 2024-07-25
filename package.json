@@ -12,6 +12,7 @@
     "lerna-version": "lerna version --no-private",
     "lerna-build": "pnpm prettier:fix && lerna run build",
     "lerna-analyze": "lerna run build && lerna run analyze",
+    "lerna-publish": "pnpm lerna-build && lerna publish --no-private",
     "test": "jest --testPathIgnorePatterns '.*fork.*'",
     "vitest": "vitest fork --config ./packages/sdk/vitest.config.ts"
   },

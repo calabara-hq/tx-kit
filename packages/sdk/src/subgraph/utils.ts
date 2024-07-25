@@ -142,7 +142,7 @@ export const formatGqlChannel = (channel: GqlChannel): IChannel => {
         creatorLogic: null,
         minterLogic: null,
         fees: null,
-        tokens: channel.tokens ? formatGqlTokens(channel.tokens) : []
+        tokens: []
     }
 
     if (channel.creatorLogic) {

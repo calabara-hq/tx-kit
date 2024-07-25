@@ -43,7 +43,7 @@ describe("Load channel", () => {
             includeTokens: true
         })
         expect(data).toBeDefined()
-        expect(Array.isArray(data!.tokens)).toBe(true)
+        expect(data!.tokens.length).toBeGreaterThan(0)
     })
 })
 
