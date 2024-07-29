@@ -2,7 +2,7 @@ import { createTestClient, Hex, http, publicActions, walletActions, zeroAddress 
 import { NATIVE_TOKEN } from "../constants";
 import { InvalidArgumentError } from "../errors";
 import { UniformInteractionPower, WeightedInteractionPower } from "../utils/logic";
-import { validateAddress, validateCreateTokenInputs, validateFeePercentage, validateFiniteChannelInputs, validateFiniteTransportLayer, validateInfiniteChannelInputs, validateInfiniteTransportLayer, validateMintTokenBatchInputs, validateSetFeeInputs, validateSetLogicInputs, validateSetupActions, validateSignedIntent, validateSponsorTokenInputs, validateWithdrawRewardsInputs } from "../utils/validate";
+import { validateAddress, validateCreateTokenInputs, validateFeePercentage, validateFiniteChannelInputs, validateFiniteTransportLayer, validateInfiniteChannelInputs, validateInfiniteTransportLayer, validateMintTokenBatchInputs, validateSetFeeInputs, validateSetLogicInputs, validateSetupActions, validateSponsorTokenInputs, validateWithdrawRewardsInputs } from "../utils/validate";
 import { baseSepolia, foundry } from "viem/chains";
 import { DeferredTokenIntent, SponsorTokenConfig } from "../types";
 import { privateKeyToAccount } from "viem/accounts";
@@ -663,69 +663,6 @@ describe("validate withdraw rewards inputs", () => {
         })
         ).not.toThrow()
     });
-})
-
-describe("validate signed intent", () => {
-    const deferredTokenIntent: DeferredTokenIntent = {
-        author: zeroAddress,
-        intent: {
-            domain: {
-                name: "Transmissions",
-                version: "1",
-                chainId: 1234, // Should be a number
-                verifyingContract: zeroAddress
-            },
-            types: {
-                DeferredTokenPermission: [
-                    { name: "uri", type: "string" },
-                    { name: "maxSupply", type: "uint256" },
-                    { name: "deadline", type: "uint256" },
-                    { name: "nonce", type: "bytes32" }
-                ]
-            },
-            primaryType: "DeferredTokenPermission",
-            message: {
-                uri: "sample uri",
-                maxSupply: BigInt(100),
-                deadline: BigInt(Math.floor(Date.now() / 1000) + 2400),
-                nonce: '0x' + randomBytes(32).toString("hex") as Hex
-            }
-        }
-    }
-
-    test("invalid signer + author pair fails", async () => {
-        const signature = await testClient.signTypedData(deferredTokenIntent.intent);
-
-        await expect(validateSignedIntent({ ...deferredTokenIntent, signature }))
-            .rejects
-            .toThrow(InvalidArgumentError);
-    });
-
-    test("tampered data fails", async () => {
-        const signature = await testClient.signTypedData(deferredTokenIntent.intent);
-
-        await expect(validateSignedIntent({
-            ...deferredTokenIntent,
-            intent: {
-                ...deferredTokenIntent.intent,
-                message: {
-                    ...deferredTokenIntent.intent.message,
-                    uri: "different uri"
-                }
-            },
-            signature
-        }))
-            .rejects
-            .toThrow(InvalidArgumentError);
-    });
-
-    test("valid signer + author pair passes", async () => {
-        const signature = await testClient.signTypedData(deferredTokenIntent.intent);
-
-        await expect(validateSignedIntent({ ...deferredTokenIntent, author: testClient.account.address, signature }))
-            .resolves
-            .not.toThrow();
-    })
 })
 
 describe("validate sponsor token inputs", () => {

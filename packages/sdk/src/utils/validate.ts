@@ -225,17 +225,6 @@ export const validateMintTokenBatchInputs = (inputs: MintTokenBatchConfig): void
     }
 }
 
-// todo check the deadlines
-export const validateSignedIntent = async (data: DeferredTokenIntentWithSignature): Promise<void> => {
-
-    const recoveredAddress = await recoverTypedDataAddress({ ...data.intent, signature: data.signature })
-
-    if (recoveredAddress !== data.author) {
-        throw new InvalidArgumentError("Invalid signature for deferred token creation")
-    }
-
-}
-
 export const validateSponsorTokenInputs = async (inputs: SponsorTokenConfig): Promise<void> => {
     validateAddress(inputs.channelAddress);
     validateAddress(inputs.to);
@@ -258,7 +247,6 @@ export const validateSponsorTokenInputs = async (inputs: SponsorTokenConfig): Pr
         throw new InvalidArgumentError(`Invalid amount. Amount must be greater than 0`)
     }
 
-    await validateSignedIntent(inputs.sponsoredToken);
 }
 
 
