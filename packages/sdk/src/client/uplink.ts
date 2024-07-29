@@ -7,6 +7,7 @@ import {
     encodeEventTopics,
     erc20Abi,
     getContract,
+    parseErc6492Signature,
     zeroAddress,
 } from 'viem'
 
@@ -23,7 +24,6 @@ import { encodeDynamicLogicInputs } from '../utils/logic'
 import { encodeCustomFeeInputs } from '../utils/fees'
 import { createSetupActions } from '../utils/setupActions'
 import { createFiniteTransportLayerInput, createInfiniteTransportLayerInput } from '../utils/transport'
-import { extractVRSfromSignature } from '../utils/signatures'
 
 
 class UplinkTransactions extends BaseTransactions {
@@ -386,8 +386,6 @@ class UplinkTransactions extends BaseTransactions {
 
         await validateSponsorTokenInputs({ channelAddress, sponsoredToken, to, amount, mintReferral, data });
 
-        const { v, r, s } = extractVRSfromSignature(sponsoredToken.signature);
-
         const result = await this._executeContractFunction({
             contractAddress: channelAddress as Address,
             contractAbi: [...this._infiniteChannelAbi, ...this._finiteChannelAbi],
@@ -400,9 +398,7 @@ class UplinkTransactions extends BaseTransactions {
                     nonce: sponsoredToken.intent.message.nonce
                 },
                 sponsoredToken.author,
-                v,
-                r,
-                s,
+                sponsoredToken.signature,
                 to,
                 BigInt(amount),
                 mintReferral,
@@ -427,8 +423,6 @@ class UplinkTransactions extends BaseTransactions {
 
         await validateSponsorTokenInputs({ channelAddress, sponsoredToken, to, amount, mintReferral, data })
 
-        const { v, r, s } = extractVRSfromSignature(sponsoredToken.signature)
-
         if (this._shouldRequireWalletClient) this._requireWalletClient()
 
         const result = await this._executeContractFunction({
@@ -438,9 +432,7 @@ class UplinkTransactions extends BaseTransactions {
             functionArgs: [
                 sponsoredToken.intent.message,
                 sponsoredToken.author,
-                v,
-                r,
-                s,
+                sponsoredToken.signature,
                 to,
                 amount,
                 mintReferral,
@@ -905,9 +897,11 @@ export class UplinkClient extends UplinkTransactions {
         if (!this._walletClient?.account) throw new Error()
 
         const signature = await this._walletClient.signTypedData(args.intent)
+        const parsedSignature = parseErc6492Signature(signature).signature
+
         return {
             ...args,
-            signature
+            signature: parsedSignature
         }
     }
 
