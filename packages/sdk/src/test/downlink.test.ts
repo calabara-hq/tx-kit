@@ -1,7 +1,8 @@
-import { Chain, PublicClient, Transport, zeroAddress } from "viem";
+import { Chain, createPublicClient, http, PublicClient, Transport, zeroAddress } from "viem";
 import { DownlinkClient } from "../client/downlink";
 import { InvalidConfigError } from "../errors";
 import { BASE_SEPOLIA_SUBGRAPH_URL } from "../constants";
+import { baseSepolia } from "viem/chains";
 const mockPublicClient = jest.fn(() => {
     return {} as unknown as PublicClient<Transport, Chain>
 })
@@ -26,7 +27,10 @@ describe("Client configuration", () => {
 })
 
 const createClient = () => {
-    const publicClient = new mockPublicClient()
+    const publicClient = createPublicClient({
+        chain: baseSepolia as Chain,
+        transport: http()
+    })
     return new DownlinkClient({
         publicClient: publicClient,
         apiConfig: {
@@ -69,5 +73,16 @@ describe("Load channels", () => {
             }
         )
         expect(Array.isArray(data)).toBe(true)
+    })
+})
+
+describe.only("Get upgrade path", () => {
+    test("get optimal upgrade path", async () => {
+        const client = createClient();
+        const path = await client.getOptimalUpgradePath({
+            address: "0x3a937D7B6079dA0745824B0B97700F494B750361"
+        })
+
+        expect(path).toBeDefined()
     })
 })

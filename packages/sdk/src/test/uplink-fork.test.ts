@@ -559,7 +559,7 @@ describe("Channel", () => {
     })
 
 
-    describe.only("approve erc20", () => {
+    describe("approve erc20", () => {
         test("approve erc20", async () => {
             const client = createClient(ALICE)
             await mintERC20(baseSepoliaWETH, ALICE, parseEther('10'))
@@ -582,6 +582,17 @@ describe("Channel", () => {
 
             expect(allowance).toEqual(parseEther('0.000666'))
 
+        })
+    })
+
+    describe("ugrade channel", () => {
+        test("upgrade fails on invalid path", async () => {
+            const client = createClient(ALICE)
+            const { contractAddress: targetInfiniteChannel } = await client.createInfiniteChannel(generateInfiniteChannelArgs())
+
+            await expect(async () => {
+                await client.upgradeChannel({ channelAddress: targetInfiniteChannel, newImplementation: zeroAddress })
+            }).rejects.toThrow(ContractFunctionExecutionError)
         })
     })
 

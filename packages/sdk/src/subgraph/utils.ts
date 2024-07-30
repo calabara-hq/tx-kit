@@ -1,5 +1,5 @@
 import { getAddress, zeroAddress } from "viem";
-import { GqlChannel, GqlCustomFees, GqlDynamicLogic, GqlFeeConfig, GqlLogicConfig, GqlToken, GqlTokenMetadata, GqlTransportLayer, IChannel, ICustomFees, IDynamicLogic, IFeeConfig, IFiniteTransportConfig, ILogicConfig, InteractionPowerTypes, IToken, ITokenMetadata, ITransportLayer } from "./types";
+import { GqlChannel, GqlCustomFees, GqlDynamicLogic, GqlFeeConfig, GqlLogicConfig, GqlToken, GqlTokenMetadata, GqlTransportLayer, GqlUpgradePath, IChannel, ICustomFees, IDynamicLogic, IFeeConfig, IFiniteTransportConfig, ILogicConfig, InteractionPowerTypes, IToken, ITokenMetadata, ITransportLayer, IUpgradePath } from "./types";
 import { fromBigIntToPercent } from "../utils/numbers";
 
 export const formatGqlTransportLayer = (transportLayer: GqlTransportLayer): ITransportLayer => {
@@ -178,4 +178,16 @@ export const formatGqlChannel = (channel: GqlChannel): IChannel => {
 
     return formatted;
 
+}
+
+export const formatGqlUpgradePath = (upgradePath?: GqlUpgradePath): IUpgradePath | null => {
+    if (!upgradePath) return null;
+
+    return {
+        id: upgradePath.id,
+        baseImpl: getAddress(upgradePath.baseImpl),
+        upgradeImpl: getAddress(upgradePath.upgradeImpl),
+        blockNumber: BigInt(upgradePath.blockNumber),
+        blockTimestamp: BigInt(upgradePath.blockTimestamp)
+    }
 }

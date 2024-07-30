@@ -31,6 +31,10 @@ export type GetTokensQuery = {
     channelAddress: string
 } & Filters
 
+export type GetChannelUpgradesQuery = {
+    address: string
+}
+
 export type GqlBlockInfo = {
     blockNumber: Scalars['String']
     blockTimestamp: Scalars['String']
@@ -182,6 +186,21 @@ export type GqlChannel = {
     fees?: GqlFeeConfig
     tokens?: GqlToken[]
 } & GqlBlockInfo
+
+
+export type GqlUpgradePath = {
+    __typename: 'ChannelUpgradeRegisteredEvent'
+    id: Scalars['ID']
+    baseImpl: Scalars['String']
+    upgradeImpl: Scalars['String']
+} & GqlBlockInfo
+
+export type IUpgradePath = {
+    id: string
+    baseImpl: Address
+    upgradeImpl: Address
+} & IBlockInfo
+
 
 export type ITransportLayer = {
     id?: string

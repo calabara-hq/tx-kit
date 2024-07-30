@@ -274,3 +274,8 @@ export type ApproveERC20Config = {
   spender: string
   amount: bigint
 } & TransactionOverridesDict
+
+export type UpgradeChannelImplConfig = {
+  channelAddress: string
+  newImplementation: string
+} & TransactionOverridesDict

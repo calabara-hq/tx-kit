@@ -6,6 +6,7 @@ import {
   UpdateChannelMetadataConfig,
   SetChannelFeeConfig,
   UpdateInfiniteChannelTransportLayerConfig,
+  UpgradeChannelImplConfig,
 } from '@tx-kit/sdk'
 import {
   channelAbi,
@@ -233,4 +234,55 @@ export const useUpdateInfiniteChannelTransportLayer = () => {
   )
 
   return { updateInfiniteChannelTransportLayer, status, txHash, error }
+}
+
+export const useUpgradeChannel = () => {
+  const context = useContext(TransmissionsContext)
+  const transmissionsClient = getTransmissionsClient(context).uplinkClient
+
+  const [status, setStatus] = useState<ContractExecutionStatus>()
+  const [txHash, setTxHash] = useState<string>()
+  const [error, setError] = useState<RequestError>()
+
+  const upgradeChannel = useCallback(
+    async (args: UpgradeChannelImplConfig) => {
+      if (!transmissionsClient) throw new Error('Invalid transmissions client')
+      try {
+        setStatus('pendingApproval')
+        setError(undefined)
+        setTxHash(undefined)
+
+        const { txHash: hash } =
+          await transmissionsClient.submitUpgradeChannelTransaction(args)
+        setStatus('txInProgress')
+        setTxHash(hash)
+
+        const events = await transmissionsClient.getTransactionEvents({
+          txHash: hash,
+          eventTopics: transmissionsClient.eventTopics.upgraded,
+        })
+
+        const event = events?.[0]
+        const decodedLog = event
+          ? decodeEventLog({
+              abi: channelAbi,
+              data: event.data,
+              topics: event.topics,
+            })
+          : undefined
+
+        if (decodedLog?.eventName === 'Upgraded') {
+          setStatus('complete')
+        }
+
+        return events
+      } catch (e) {
+        setStatus('error')
+        setError(e)
+      }
+    },
+    [transmissionsClient],
+  )
+
+  return { upgradeChannel, status, txHash, error }
 }

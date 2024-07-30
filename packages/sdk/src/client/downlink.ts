@@ -10,9 +10,10 @@ import {
 } from 'viem'
 import { InvalidConfigError, MissingPublicClientError, UnsupportedSubgraphChainIdError } from '../errors'
 import { DownlinkClientConfig } from '../types'
-import { GetAllChannelsQuery, GetChannelQuery, GetTokensQuery, GqlChannel, GqlToken, IChannel, IToken } from '../subgraph/types'
-import { _allChannelsQuery, _channelQuery, _paginatedChannelTokensQuery, getGraphqlClient, GqlVariables } from '../subgraph'
-import { formatGqlChannel, formatGqlTokens, formatGqlTransportLayer } from '../subgraph/utils'
+import { GetAllChannelsQuery, GetChannelQuery, GetChannelUpgradesQuery, GetTokensQuery, GqlChannel, GqlToken, GqlUpgradePath, IChannel, IToken, IUpgradePath } from '../subgraph/types'
+import { _allChannelsQuery, _channelQuery, _channelUpgradeEventsQuery, _paginatedChannelTokensQuery, getGraphqlClient, GqlVariables } from '../subgraph'
+import { formatGqlChannel, formatGqlTokens, formatGqlTransportLayer, formatGqlUpgradePath } from '../subgraph/utils'
+import { orderBy } from 'lodash'
 
 export class DownlinkClient {
     readonly _ensPublicClient: PublicClient<Transport, Chain> | undefined
@@ -111,6 +112,20 @@ export class DownlinkClient {
         return result?.channel?.tokens ?? []
     }
 
+    protected async _loadChannelUpgradeEvents(inputs: GetChannelUpgradesQuery): Promise<GqlUpgradePath[]> {
+        const result = await this._makeGqlRequest<{
+            channelUpgradeRegisteredEvents: GqlUpgradePath[]
+        }>(_channelUpgradeEventsQuery, {
+            where: {
+                baseImpl_contains: inputs.address.toLowerCase(),
+            },
+            orderBy: 'blockNumber',
+            orderDirection: 'desc',
+        })
+
+        return result?.channelUpgradeRegisteredEvents ?? []
+    }
+
     /// client methods
 
     async getChannel(inputs: GetChannelQuery): Promise<IChannel | undefined> {
@@ -140,6 +155,28 @@ export class DownlinkClient {
 
     async customQuery(query: DocumentNode, variables?: GqlVariables): Promise<any> {
         return this._makeGqlRequest(query, variables)
+    }
+
+    async getOptimalUpgradePath(inputs: GetChannelUpgradesQuery): Promise<IUpgradePath | null> {
+
+        /// get base impl from channel address
+
+        const erc1967StorageSlot = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
+
+        this._requirePublicClient();
+
+        const data = await this._publicClient?.getStorageAt({
+            address: inputs.address as Address,
+            slot: erc1967StorageSlot
+        })
+
+        inputs.address = getAddress('0x' + data?.slice(26))
+
+        const upgradePaths = await this._loadChannelUpgradeEvents(inputs)
+
+        // pluck the first element from the upgrade paths
+
+        return formatGqlUpgradePath(upgradePaths[0])
     }
 
 }

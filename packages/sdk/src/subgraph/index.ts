@@ -182,6 +182,18 @@ export const _paginatedChannelTokensQuery = gql`
 
 `
 
+export const _channelUpgradeEventsQuery = gql`
+    query channelUpgrades($where: ChannelUpgradeRegisteredEvent_filter) {
+        channelUpgradeRegisteredEvents(where: $where) {
+            id
+            baseImpl
+            upgradeImpl
+            blockNumber
+            blockTimestamp
+        }
+    }
+`
+
 
 export type GqlVariables = {
     [key: string]: string | number | boolean | undefined | string[] | object

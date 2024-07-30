@@ -13,7 +13,7 @@ import {
 
 import { randomBytes } from 'crypto'
 import { getChannelFactoryAddress, getCustomFeesAddress, INTENT_DURATION, SUPPORTED_CHAIN_IDS, TransactionType } from "../constants"
-import { ApproveERC20Config, CallData, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, CreateTokenConfig, DeferredTokenIntent, DeferredTokenIntentWithSignature, MintTokenBatchConfig, MintTokenConfig, SetChannelFeeConfig, SetChannelLogicConfig, SponsorTokenConfig, TransactionConfig, TransactionFormat, TransactionOverridesDict, TransmissionsClientConfig, UpdateChannelMetadataConfig, UpdateInfiniteChannelTransportLayerConfig, WithdrawRewardsConfig } from "../types"
+import { ApproveERC20Config, CallData, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, CreateTokenConfig, DeferredTokenIntent, DeferredTokenIntentWithSignature, MintTokenBatchConfig, MintTokenConfig, SetChannelFeeConfig, SetChannelLogicConfig, SponsorTokenConfig, TransactionConfig, TransactionFormat, TransactionOverridesDict, TransmissionsClientConfig, UpdateChannelMetadataConfig, UpdateInfiniteChannelTransportLayerConfig, UpgradeChannelImplConfig, WithdrawRewardsConfig } from "../types"
 import { TransactionFailedError, UnsupportedChainIdError } from '../errors'
 
 import { channelAbi, channelFactoryAbi, customFeesAbi, dynamicLogicAbi, finiteChannelAbi, infiniteChannelAbi, rewardsAbi } from '../abi/index'
@@ -494,8 +494,27 @@ class UplinkTransactions extends BaseTransactions {
         return result
     }
 
-}
+    protected async _upgradeChannel({
+        channelAddress,
+        newImplementation,
+        transactionOverrides = {}
+    }: UpgradeChannelImplConfig): Promise<TransactionFormat> {
 
+        if (this._shouldRequireWalletClient) this._requireWalletClient();
+
+        const result = await this._executeContractFunction({
+            contractAddress: channelAddress as Address,
+            contractAbi: this._channelAbi,
+            functionName: 'upgradeToAndCall',
+            functionArgs: [
+                newImplementation,
+                ""
+            ],
+            transactionOverrides
+        })
+        return result
+    }
+}
 
 
 export class UplinkClient extends UplinkTransactions {
@@ -584,6 +603,12 @@ export class UplinkClient extends UplinkTransactions {
                 encodeEventTopics({
                     abi: erc20Abi,
                     eventName: 'Approval'
+                })[0]
+            ],
+            upgraded: [
+                encodeEventTopics({
+                    abi: this._channelAbi,
+                    eventName: 'Upgraded'
                 })[0]
             ]
         }
@@ -1206,6 +1231,40 @@ export class UplinkClient extends UplinkTransactions {
         throw new TransactionFailedError()
     }
 
+    async submitUpgradeChannelTransaction(upgradeChannelArgs: UpgradeChannelImplConfig): Promise<{ txHash: Hash }> {
+        const txHash = await this._upgradeChannel(upgradeChannelArgs)
+
+        if (!this._isContractTransaction(txHash)) {
+            throw new Error('Invalid Response')
+        }
+
+        return { txHash }
+    }
+
+    async upgradeChannel(upgradeChannelArgs: UpgradeChannelImplConfig): Promise<{ event: Log }> {
+        const { txHash } = await this.submitUpgradeChannelTransaction(upgradeChannelArgs)
+
+        const events = await this.getTransactionEvents({
+            txHash,
+            eventTopics: this.eventTopics.upgraded
+        })
+
+        const event = events.length > 0 ? events[0] : undefined
+
+        if (event) {
+            const log = decodeEventLog({
+                abi: this._channelAbi,
+                data: event.data,
+                topics: event.topics,
+            })
+            if (log.eventName !== 'Upgraded') throw new Error()
+            return {
+                event
+            }
+        }
+        throw new TransactionFailedError()
+    }
+
 }
 
 
@@ -1358,6 +1417,14 @@ class UplinkCallData extends UplinkTransactions {
 
     async approveERC20(approveERC20Args: ApproveERC20Config): Promise<CallData> {
         const result = await this._approveERC20(approveERC20Args)
+        if (this._isCallData(result)) {
+            return result
+        }
+        throw new Error('Invalid Response')
+    }
+
+    async upgradeChannel(upgradeChannelArgs: UpgradeChannelImplConfig): Promise<CallData> {
+        const result = await this._upgradeChannel(upgradeChannelArgs)
         if (this._isCallData(result)) {
             return result
         }
@@ -1518,6 +1585,14 @@ class UplinkGasEstimates extends UplinkTransactions {
 
     async approveERC20(approveERC20Args: ApproveERC20Config): Promise<bigint> {
         const gasEstimate = await this._approveERC20(approveERC20Args)
+        if (!this._isBigInt(gasEstimate)) {
+            throw new Error('Invalid Response')
+        }
+        return gasEstimate
+    }
+
+    async upgradeChannel(upgradeChannelArgs: UpgradeChannelImplConfig): Promise<bigint> {
+        const gasEstimate = await this._upgradeChannel(upgradeChannelArgs)
         if (!this._isBigInt(gasEstimate)) {
             throw new Error('Invalid Response')
         }
