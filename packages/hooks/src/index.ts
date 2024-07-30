@@ -6,7 +6,7 @@ export {
   useCreateInfiniteChannel,
   useUpdateMetadata,
   useUpdateChannelFees,
-  useUpdateInfiniteChannelTransportLayer,
+  useUpgradeChannel
 } from './channel'
 
 export {
