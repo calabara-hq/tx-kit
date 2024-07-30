@@ -18,9 +18,9 @@ export const NATIVE_TOKEN = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 export const MULTICALL_3_ADDRESS = '0xca11bde05977b3631167028862be2a173976ca11'
 
 export const BASE_SEPOLIA_SUBGRAPH_URL =
-  'https://api.goldsky.com/api/public/project_clx10qkniqc3w01ypaz560vm1/subgraphs/transmissions-baseSepolia/0.0.6/gn'
+  'https://api.goldsky.com/api/public/project_clx10qkniqc3w01ypaz560vm1/subgraphs/transmissions-baseSepolia/0.0.7/gn'
 export const BASE_MAINNET_SUBGRAPH_URL =
-  'https://api.goldsky.com/api/public/project_clx10qkniqc3w01ypaz560vm1/subgraphs/transmissions-baseMainnet/0.0.1/gn'
+  'https://api.goldsky.com/api/public/project_clx10qkniqc3w01ypaz560vm1/subgraphs/transmissions-baseMainnet/0.0.2/gn'
 
 export const INTENT_DURATION = BigInt(60 * 60 * 24 * 7) // 1 week
 
