@@ -16,6 +16,7 @@ export class TransmissionsClient extends BaseTransactions {
         apiConfig,
         includeEnsNames = false,
         ensPublicClient,
+        paymasterConfig
     }: TransmissionsClientConfig) {
 
         super({
@@ -25,6 +26,7 @@ export class TransmissionsClient extends BaseTransactions {
             walletClient,
             includeEnsNames,
             ensPublicClient,
+            paymasterConfig
         })
 
         this.uplinkClient = new UplinkClient({
@@ -32,7 +34,8 @@ export class TransmissionsClient extends BaseTransactions {
             publicClient,
             ensPublicClient,
             walletClient,
-            includeEnsNames
+            includeEnsNames,
+            paymasterConfig
         })
 
         this.downlinkClient = new DownlinkClient({

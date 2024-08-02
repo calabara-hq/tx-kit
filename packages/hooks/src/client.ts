@@ -30,6 +30,11 @@ export const useTransmissionsClient = (
     config && 'ensPublicClient' in config
       ? config.ensPublicClient
       : context.transmissionsClient._ensPublicClient
+  const paymasterConfig =
+    config && 'paymasterConfig' in config
+      ? config.paymasterConfig
+      : context.transmissionsClient._paymasterConfig
+
   useEffect(() => {
     context.initClient({
       chainId: chainId!,
@@ -37,8 +42,16 @@ export const useTransmissionsClient = (
       walletClient,
       includeEnsNames,
       ensPublicClient,
+      paymasterConfig,
     })
-  }, [chainId, publicClient, walletClient, includeEnsNames, ensPublicClient])
+  }, [
+    chainId,
+    publicClient,
+    walletClient,
+    includeEnsNames,
+    ensPublicClient,
+    paymasterConfig,
+  ])
 
   return context.transmissionsClient as TransmissionsClient
 }

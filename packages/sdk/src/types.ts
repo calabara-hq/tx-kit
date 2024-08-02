@@ -18,6 +18,10 @@ export type ApiConfig = {
   serverUrl?: string
 }
 
+export type PaymasterConfig = {
+  paymasterUrl?: string
+}
+
 export type DownlinkClientConfig = {
   publicClient?: PublicClient<Transport, Chain>
   includeEnsNames?: boolean
@@ -36,6 +40,7 @@ export type TransmissionsClientConfig = {
   // ensPublicClient can be used to fetch ens names when publicClient is not on mainnet (reverseRecords
   // only works on mainnet).
   ensPublicClient?: PublicClient<Transport, Chain>
+  paymasterConfig?: PaymasterConfig
 }
 
 export type TransactionOverrides = {

@@ -66,3 +66,12 @@ export class InvalidArgumentError extends Error {
     Object.setPrototypeOf(this, InvalidArgumentError.prototype)
   }
 }
+
+export class InvalidPaymasterError extends Error {
+  name = 'InvalidPaymasterError'
+
+  constructor(m?: string) {
+    super(m)
+    Object.setPrototypeOf(this, InvalidPaymasterError.prototype)
+  }
+}

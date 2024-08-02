@@ -1,5 +1,5 @@
 export { TransmissionsClient } from '@tx-kit/sdk'
-export { TransmissionsProvider } from './context'
+export { TransmissionsProvider, TransmissionsContext } from './context'
 export type { UplinkClient, DownlinkClient } from '@tx-kit/sdk'
 
 export {

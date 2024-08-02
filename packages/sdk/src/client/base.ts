@@ -11,17 +11,19 @@ import {
     Transport,
     Chain,
     Account,
+    WalletCallReceipt,
+    WalletCapabilities,
 } from 'viem'
 import {
     InvalidConfigError,
+    InvalidPaymasterError,
     MissingPublicClientError,
     MissingWalletClientError,
 } from '../errors'
-import { TransmissionsClientConfig, TransactionConfig, TransactionOverrides, TransactionFormat, CallData, MulticallConfig } from '../types';
+import { TransmissionsClientConfig, TransactionConfig, TransactionOverrides, TransactionFormat, CallData, MulticallConfig, PaymasterConfig } from '../types';
 import { TransactionType } from '../constants';
 import { channelAbi } from '../abi/index';
-
-
+import { GetCallsStatusReturnType, walletActionsEip5792 } from 'viem/experimental'
 
 
 class BaseClient {
@@ -30,6 +32,7 @@ class BaseClient {
     readonly _walletClient: WalletClient<Transport, Chain, Account> | undefined
     readonly _publicClient: PublicClient<Transport, Chain> | undefined
     readonly _includeEnsNames: boolean
+    readonly _paymasterConfig: PaymasterConfig | undefined
 
     constructor({
         chainId,
@@ -37,6 +40,7 @@ class BaseClient {
         ensPublicClient,
         walletClient,
         includeEnsNames = false,
+        paymasterConfig
     }: TransmissionsClientConfig) {
         if (includeEnsNames && !publicClient && !ensPublicClient)
             throw new InvalidConfigError(
@@ -48,6 +52,7 @@ class BaseClient {
         this._chainId = chainId
         this._walletClient = walletClient
         this._includeEnsNames = includeEnsNames
+        this._paymasterConfig = paymasterConfig
     }
 
 
@@ -82,13 +87,16 @@ export class BaseTransactions extends BaseClient {
         ensPublicClient,
         walletClient,
         includeEnsNames = false,
+        paymasterConfig
     }: TransmissionsClientConfig & TransactionConfig) {
+
         super({
             chainId,
             publicClient,
             ensPublicClient,
             walletClient,
             includeEnsNames,
+            paymasterConfig
         })
 
         this._transactionType = transactionType
@@ -146,18 +154,61 @@ export class BaseTransactions extends BaseClient {
         } else if (this._transactionType === TransactionType.Transaction) {
             if (!this._walletClient?.account) throw new Error()
 
-            const { request } = await this._publicClient.simulateContract({
-                address: contractAddress,
-                abi: contractAbi,
-                functionName,
-                account: this._walletClient.account,
-                args: functionArgs ?? [],
-                value,
-                ...transactionOverrides,
-            })
 
-            const txHash = await this._walletClient.writeContract(request)
-            return txHash
+
+            try {
+
+                // check capabilities
+                const eip5792Client = this._walletClient.extend(walletActionsEip5792())
+                const capabilitiesForChain = await eip5792Client.getCapabilities().then(data => data[this._chainId]).catch(() => { throw new InvalidPaymasterError() })
+
+                const capabilities: WalletCapabilities = {};
+
+                if (this._paymasterConfig?.paymasterUrl) {
+                    if (capabilitiesForChain["paymasterService"] && capabilitiesForChain["paymasterService"].supported) {
+                        capabilities['paymasterService'] = { url: this._paymasterConfig.paymasterUrl }
+                    }
+                }
+
+                // pass transaction simulation to the wallet client (auxilliary funding may be available)
+
+                const txHash = await eip5792Client.writeContracts({
+                    contracts: [{
+                        address: contractAddress,
+                        abi: contractAbi,
+                        functionName,
+                        args: functionArgs ?? [],
+                        value,
+                        ...transactionOverrides
+                    }],
+                    capabilities
+                })
+                return txHash as Hash
+
+
+            } catch (e) {
+                if (e instanceof InvalidPaymasterError) {
+                    // fallback to normal transaction
+
+                    const { request } = await this._publicClient.simulateContract({
+                        address: contractAddress,
+                        abi: contractAbi,
+                        functionName,
+                        account: this._walletClient.account,
+                        args: functionArgs ?? [],
+                        value,
+                        ...transactionOverrides,
+                    })
+
+
+                    const txHash = await this._walletClient.writeContract(request)
+                    return txHash as Hash
+                }
+                throw e
+            }
+
+
+            // return txHash as Hash
         } else throw new Error(`Unknown transaction type: ${this._transactionType}`)
     }
 
@@ -202,7 +253,100 @@ export class BaseTransactions extends BaseClient {
 
 
 export class BaseClientMixin extends BaseTransactions {
-    async getTransactionEvents({
+
+
+    protected async _pollForSendCallsStatus(
+        {
+            txId,
+            retryCount = 6,
+            retryDelay = ({ count }) => Math.min(2000, ~~(1 << count) * 200), // exponential backoff
+            timeout = 30000, // 30 secs
+        }: {
+            txId: Hash;
+            retryCount?: number;
+            retryDelay?: ({ count }: { count: number }) => number;
+            timeout?: number;
+        },
+    ): Promise<GetCallsStatusReturnType> {
+        let count = 0;
+        let isTimeout = false;
+
+
+        const _walletClient = this._walletClient;
+
+        if (!_walletClient)
+            throw new Error('Wallet client required to get send calls events')
+
+        return new Promise((resolve, reject) => {
+            const timeoutId = setTimeout(() => {
+                isTimeout = true;
+                reject(new Error('Polling for transaction status timed out.'));
+            }, timeout);
+
+            async function poll() {
+                if (isTimeout) return;
+
+                try {
+                    const { status, receipts } = await _walletClient!
+                        .extend(walletActionsEip5792())
+                        .getCallsStatus({ id: txId });
+
+                    if (status === 'CONFIRMED' && receipts) {
+                        clearTimeout(timeoutId);
+                        resolve({ status, receipts });
+                        return;
+                    }
+
+                    if (count >= retryCount) {
+                        clearTimeout(timeoutId);
+                        reject(new Error('Maximum retry attempts reached.'));
+                        return;
+                    }
+
+                    count++;
+                    setTimeout(poll, retryDelay({ count }));
+                } catch (error) {
+                    if (isTimeout) return;
+
+                    count++;
+                    if (count >= retryCount) {
+                        clearTimeout(timeoutId);
+                        reject(new Error('Polling failed due to repeated errors.'));
+                        return;
+                    }
+
+                    setTimeout(poll, retryDelay({ count }));
+                }
+            }
+
+            poll();
+        });
+    }
+
+
+    protected async _getSendCallsEvents({
+        txId,
+        eventTopics,
+        includeAll,
+    }: {
+        txId: Hash
+        eventTopics: Hex[]
+        includeAll?: boolean
+    }): Promise<Log[]> {
+
+        if (!this._walletClient)
+            throw new Error('Wallet client required to get send calls events')
+
+        const { status, receipts } = await this._pollForSendCallsStatus({ txId })
+
+        if (status === 'CONFIRMED' && receipts) {
+            return this._getSendTransactionEvents({ txHash: receipts[0].transactionHash, eventTopics, includeAll })
+        }
+        return [];
+
+    }
+
+    protected async _getSendTransactionEvents({
         txHash,
         eventTopics,
         includeAll,
@@ -211,8 +355,9 @@ export class BaseClientMixin extends BaseTransactions {
         eventTopics: Hex[]
         includeAll?: boolean
     }): Promise<Log[]> {
+
         if (!this._publicClient)
-            throw new Error('Public client required to get transaction events')
+            throw new Error('Public client required to get send calls events')
 
         const transaction = await this._publicClient.waitForTransactionReceipt({
             hash: txHash,
@@ -229,6 +374,25 @@ export class BaseClientMixin extends BaseTransactions {
         }
 
         return []
+    }
+
+
+    async getTransactionEvents({
+        txHash,
+        eventTopics,
+        includeAll,
+    }: {
+        txHash: Hash
+        eventTopics: Hex[]
+        includeAll?: boolean
+    }): Promise<Log[]> {
+
+
+        if (txHash.length === 66) {
+            return this._getSendTransactionEvents({ txHash, eventTopics, includeAll })
+        } else {
+            return this._getSendCallsEvents({ txId: txHash, eventTopics, includeAll })
+        }
     }
 
     async submitMulticallTransaction(multicallArgs: MulticallConfig): Promise<{

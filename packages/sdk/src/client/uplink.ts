@@ -46,7 +46,9 @@ class UplinkTransactions extends BaseTransactions {
         ensPublicClient,
         walletClient,
         includeEnsNames = false,
+        paymasterConfig
     }: TransmissionsClientConfig & TransactionConfig) {
+
         super({
             transactionType,
             chainId,
@@ -54,6 +56,7 @@ class UplinkTransactions extends BaseTransactions {
             ensPublicClient,
             walletClient,
             includeEnsNames,
+            paymasterConfig,
         })
 
         if (!SUPPORTED_CHAIN_IDS.includes(chainId)) {
@@ -528,6 +531,7 @@ export class UplinkClient extends UplinkTransactions {
         walletClient,
         includeEnsNames = false,
         ensPublicClient,
+        paymasterConfig
     }: TransmissionsClientConfig) {
         super({
             transactionType: TransactionType.Transaction,
@@ -536,6 +540,7 @@ export class UplinkClient extends UplinkTransactions {
             ensPublicClient,
             walletClient,
             includeEnsNames,
+            paymasterConfig
         })
 
         this.eventTopics = {
@@ -619,6 +624,7 @@ export class UplinkClient extends UplinkTransactions {
             ensPublicClient,
             walletClient,
             includeEnsNames,
+            paymasterConfig
         })
         this.estimateGas = new UplinkGasEstimates({
             chainId,
@@ -626,6 +632,7 @@ export class UplinkClient extends UplinkTransactions {
             ensPublicClient,
             walletClient,
             includeEnsNames,
+            paymasterConfig
         })
     }
 
@@ -1275,6 +1282,7 @@ class UplinkCallData extends UplinkTransactions {
         walletClient,
         includeEnsNames = false,
         ensPublicClient,
+        paymasterConfig
     }: TransmissionsClientConfig) {
         super({
             transactionType: TransactionType.CallData,
@@ -1283,6 +1291,7 @@ class UplinkCallData extends UplinkTransactions {
             walletClient,
             includeEnsNames,
             ensPublicClient,
+            paymasterConfig
         })
     }
 
@@ -1444,6 +1453,7 @@ class UplinkGasEstimates extends UplinkTransactions {
         walletClient,
         includeEnsNames = false,
         ensPublicClient,
+        paymasterConfig
     }: TransmissionsClientConfig) {
         super({
             transactionType: TransactionType.GasEstimate,
@@ -1452,6 +1462,7 @@ class UplinkGasEstimates extends UplinkTransactions {
             walletClient,
             includeEnsNames,
             ensPublicClient,
+            paymasterConfig
         })
     }
 
