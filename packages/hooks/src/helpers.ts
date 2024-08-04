@@ -34,6 +34,7 @@ export const useApproveERC20 = () => {
       })
 
       const event = events?.[0]
+
       const decodedLog = event
         ? decodeEventLog({
             abi: erc20Abi,

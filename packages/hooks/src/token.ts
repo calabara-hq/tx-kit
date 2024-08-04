@@ -46,6 +46,10 @@ export const useCreateToken = () => {
         })
 
         const event = events?.[0]
+
+        // use the txHash from the event if it exists in order to accomodate cb smart wallet
+        if (event.transactionHash) setTxHash(event.transactionHash)
+
         const decodedLog = event
           ? decodeEventLog({
               abi: channelAbi,
@@ -136,6 +140,10 @@ export const useMintTokenBatchWithETH = () => {
         })
 
         const event = events?.[0]
+
+        // use the txHash from the event if it exists in order to accomodate cb smart wallet
+        if (event.transactionHash) setTxHash(event.transactionHash)
+
         const decodedLog = event
           ? decodeEventLog({
               abi: [...infiniteChannelAbi, ...finiteChannelAbi],
@@ -188,6 +196,10 @@ export const useSponsorTokenWithETH = () => {
         })
 
         const event = events?.[0]
+
+        // use the txHash from the event if it exists in order to accomodate cb smart wallet
+        if (event.transactionHash) setTxHash(event.transactionHash)
+
         const decodedLog = event
           ? decodeEventLog({
               abi: [...infiniteChannelAbi, ...finiteChannelAbi],
@@ -244,6 +256,10 @@ export const useMintTokenBatchWithERC20 = () => {
         })
 
         const event = events?.[0]
+
+        // use the txHash from the event if it exists in order to accomodate cb smart wallet
+        if (event.transactionHash) setTxHash(event.transactionHash)
+
         const decodedLog = event
           ? decodeEventLog({
               abi: [...infiniteChannelAbi, ...finiteChannelAbi],
@@ -295,6 +311,10 @@ export const useSponsorTokenWithERC20 = () => {
         })
 
         const event = events?.[0]
+
+        // use the txHash from the event if it exists in order to accomodate cb smart wallet
+        if (event.transactionHash) setTxHash(event.transactionHash)
+
         const decodedLog = event
           ? decodeEventLog({
               abi: [...infiniteChannelAbi, ...finiteChannelAbi],

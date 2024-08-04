@@ -45,6 +45,10 @@ export const useCreateInfiniteChannel = () => {
         })
 
         const event = events?.[0]
+
+        // use the txHash from the event if it exists in order to accomodate cb smart wallet
+        if (event.transactionHash) setTxHash(event.transactionHash)
+
         const decodedLog = event
           ? decodeEventLog({
               abi: channelFactoryAbi,
@@ -103,6 +107,10 @@ export const useUpdateMetadata = () => {
         })
 
         const event = events?.[0]
+
+        // use the txHash from the event if it exists in order to accomodate cb smart wallet
+        if (event.transactionHash) setTxHash(event.transactionHash)
+
         const decodedLog = event
           ? decodeEventLog({
               abi: channelAbi,
@@ -158,6 +166,10 @@ export const useUpdateChannelFees = () => {
         })
 
         const event = events?.[0]
+
+        // use the txHash from the event if it exists in order to accomodate cb smart wallet
+        if (event.transactionHash) setTxHash(event.transactionHash)
+
         const decodedLog = event
           ? decodeEventLog({
               abi: channelAbi,
@@ -212,6 +224,10 @@ export const useUpdateInfiniteChannelTransportLayer = () => {
         })
 
         const event = events?.[0]
+
+        // use the txHash from the event if it exists in order to accomodate cb smart wallet
+        if (event.transactionHash) setTxHash(event.transactionHash)
+
         const decodedLog = event
           ? decodeEventLog({
               abi: infiniteChannelAbi,
@@ -263,6 +279,10 @@ export const useUpgradeChannel = () => {
         })
 
         const event = events?.[0]
+
+        // use the txHash from the event if it exists in order to accomodate cb smart wallet
+        if (event.transactionHash) setTxHash(event.transactionHash)
+
         const decodedLog = event
           ? decodeEventLog({
               abi: channelAbi,
