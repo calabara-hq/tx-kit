@@ -53,10 +53,10 @@ export const useCreateToken = () => {
 
         const decodedLog = event
           ? decodeEventLog({
-            abi: channelAbi,
-            data: event.data,
-            topics: event.topics,
-          })
+              abi: channelAbi,
+              data: event.data,
+              topics: event.topics,
+            })
           : undefined
 
         const tokenId =
@@ -147,10 +147,10 @@ export const useMintTokenBatchWithETH = () => {
 
         const decodedLog = event
           ? decodeEventLog({
-            abi: [...infiniteChannelAbi, ...finiteChannelAbi],
-            data: event.data,
-            topics: event.topics,
-          })
+              abi: [...infiniteChannelAbi, ...finiteChannelAbi],
+              data: event.data,
+              topics: event.topics,
+            })
           : undefined
 
         if (decodedLog?.eventName === 'TokenMinted') {
@@ -203,10 +203,10 @@ export const useSponsorTokenWithETH = () => {
 
         const decodedLog = event
           ? decodeEventLog({
-            abi: [...infiniteChannelAbi, ...finiteChannelAbi],
-            data: event.data,
-            topics: event.topics,
-          })
+              abi: [...infiniteChannelAbi, ...finiteChannelAbi],
+              data: event.data,
+              topics: event.topics,
+            })
           : undefined
 
         const _tokenId =
@@ -289,18 +289,18 @@ export const useSponsorTokenWithERC20 = () => {
 
     const decodedLog = event
       ? decodeEventLog({
-        abi: [...infiniteChannelAbi, ...finiteChannelAbi],
-        data: event.data,
-        // @ts-ignore
-        topics: event.topics,
-      })
+          abi: [...infiniteChannelAbi, ...finiteChannelAbi],
+          data: event.data,
+          // @ts-ignore
+          topics: event.topics,
+        })
       : undefined
 
     const _tokenId =
       // @ts-ignore
       decodedLog?.eventName === 'TokenMinted'
         ? // @ts-ignore
-        decodedLog.args.tokenIds[0]
+          decodedLog.args.tokenIds[0]
         : undefined
     setTokenId(_tokenId)
     setStatus('complete')
@@ -429,11 +429,11 @@ export const useSponsorTokenWithERC20 = () => {
           const event = events?.[0]
           const decodedLog = event
             ? decodeEventLog({
-              abi: erc20Abi,
-              data: event.data,
-              // @ts-ignore
-              topics: event.topics,
-            })
+                abi: erc20Abi,
+                data: event.data,
+                // @ts-ignore
+                topics: event.topics,
+              })
             : undefined
 
           // @ts-ignore
@@ -468,15 +468,15 @@ export const useSponsorTokenWithERC20 = () => {
     ) => {
       return (await isAtomicBatchSupported)
         ? sponsorTokenWithERC20_smartWallet(
-          args,
-          erc20Contract,
-          erc20AmountRequired,
-        )
+            args,
+            erc20Contract,
+            erc20AmountRequired,
+          )
         : sponsorTokenWithERC20_EoaTwoStep(
-          args,
-          erc20Contract,
-          erc20AmountRequired,
-        )
+            args,
+            erc20Contract,
+            erc20AmountRequired,
+          )
     },
     tokenId,
     status,
@@ -546,11 +546,11 @@ export const useMintTokenBatchWithERC20 = () => {
 
     const decodedLog = event
       ? decodeEventLog({
-        abi: [...infiniteChannelAbi, ...finiteChannelAbi],
-        data: event.data,
-        // @ts-ignore
-        topics: event.topics,
-      })
+          abi: [...infiniteChannelAbi, ...finiteChannelAbi],
+          data: event.data,
+          // @ts-ignore
+          topics: event.topics,
+        })
       : undefined
 
     // @ts-ignore
@@ -680,11 +680,11 @@ export const useMintTokenBatchWithERC20 = () => {
           const event = events?.[0]
           const decodedLog = event
             ? decodeEventLog({
-              abi: erc20Abi,
-              data: event.data,
-              // @ts-ignore
-              topics: event.topics,
-            })
+                abi: erc20Abi,
+                data: event.data,
+                // @ts-ignore
+                topics: event.topics,
+              })
             : undefined
 
           // @ts-ignore
@@ -720,15 +720,15 @@ export const useMintTokenBatchWithERC20 = () => {
     ) =>
       (await isAtomicBatchSupported)
         ? mintTokenBatchWithERC20_smartWallet(
-          args,
-          erc20Contract,
-          erc20AmountRequired,
-        )
+            args,
+            erc20Contract,
+            erc20AmountRequired,
+          )
         : mintTokenBatchWithERC20_EoaTwoStep(
-          args,
-          erc20Contract,
-          erc20AmountRequired,
-        ),
+            args,
+            erc20Contract,
+            erc20AmountRequired,
+          ),
     status,
     txHash,
     error,
