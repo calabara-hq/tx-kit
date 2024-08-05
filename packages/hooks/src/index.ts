@@ -13,7 +13,9 @@ export {
   useCreateToken,
   useCreateTokenIntent,
   useMintTokenBatchWithETH,
+  useMintTokenBatchWithERC20,
   useSponsorTokenWithETH,
+  useSponsorTokenWithERC20,
 } from './token'
 
 export { useApproveERC20 } from './helpers'

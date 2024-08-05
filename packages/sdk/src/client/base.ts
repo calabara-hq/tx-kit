@@ -172,7 +172,8 @@ export class BaseTransactions extends BaseClient {
 
                 // pass transaction simulation to the wallet client (auxilliary funding may be available)
 
-                const txHash = await eip5792Client.writeContracts({
+
+                const config = {
                     contracts: [{
                         address: contractAddress,
                         abi: contractAbi,
@@ -182,7 +183,9 @@ export class BaseTransactions extends BaseClient {
                         ...transactionOverrides
                     }],
                     capabilities
-                })
+                }
+
+                const txHash = await eip5792Client.writeContracts(config)
                 return txHash as Hash
 
 
