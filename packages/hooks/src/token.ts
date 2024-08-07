@@ -53,10 +53,10 @@ export const useCreateToken = () => {
 
         const decodedLog = event
           ? decodeEventLog({
-              abi: channelAbi,
-              data: event.data,
-              topics: event.topics,
-            })
+            abi: channelAbi,
+            data: event.data,
+            topics: event.topics,
+          })
           : undefined
 
         const tokenId =
@@ -147,10 +147,10 @@ export const useMintTokenBatchWithETH = () => {
 
         const decodedLog = event
           ? decodeEventLog({
-              abi: [...infiniteChannelAbi, ...finiteChannelAbi],
-              data: event.data,
-              topics: event.topics,
-            })
+            abi: [...infiniteChannelAbi, ...finiteChannelAbi],
+            data: event.data,
+            topics: event.topics,
+          })
           : undefined
 
         if (decodedLog?.eventName === 'TokenMinted') {
@@ -203,10 +203,10 @@ export const useSponsorTokenWithETH = () => {
 
         const decodedLog = event
           ? decodeEventLog({
-              abi: [...infiniteChannelAbi, ...finiteChannelAbi],
-              data: event.data,
-              topics: event.topics,
-            })
+            abi: [...infiniteChannelAbi, ...finiteChannelAbi],
+            data: event.data,
+            topics: event.topics,
+          })
           : undefined
 
         const _tokenId =
@@ -239,31 +239,6 @@ export const useSponsorTokenWithERC20 = () => {
   const [txHash, setTxHash] = useState<string>()
   const [error, setError] = useState<RequestError>()
 
-  const eip5792WalletClient = useMemo(() => {
-    if (transmissionsClient._walletClient)
-      return transmissionsClient._walletClient.extend(walletActionsEip5792())
-  }, [transmissionsClient._walletClient])
-
-  const verifyClientParameters = useCallback(() => {
-    if (!transmissionsClient) throw new Error('Invalid transmissions client')
-    if (!transmissionsClient._walletClient)
-      throw new Error('Wallet client required')
-    if (!transmissionsClient._publicClient)
-      throw new Error('Public client required')
-  }, [transmissionsClient])
-
-  const fetchAllowance = useCallback(
-    async (erc20Contract: Address, channelAddress: Address, user: Address) => {
-      return transmissionsClient._publicClient!.readContract({
-        address: erc20Contract,
-        abi: erc20Abi,
-        functionName: 'allowance',
-        args: [user, channelAddress as Address],
-      })
-    },
-    [transmissionsClient],
-  )
-
   const decodeSponsorLogs = async (txHash: Hash) => {
     const events = await transmissionsClient.getTransactionEvents({
       txHash,
@@ -276,18 +251,18 @@ export const useSponsorTokenWithERC20 = () => {
 
     const decodedLog = event
       ? decodeEventLog({
-          abi: [...infiniteChannelAbi, ...finiteChannelAbi],
-          data: event.data,
-          // @ts-ignore
-          topics: event.topics,
-        })
+        abi: [...infiniteChannelAbi, ...finiteChannelAbi],
+        data: event.data,
+        // @ts-ignore
+        topics: event.topics,
+      })
       : undefined
 
     const _tokenId =
       // @ts-ignore
       decodedLog?.eventName === 'TokenMinted'
         ? // @ts-ignore
-          decodedLog.args.tokenIds[0]
+        decodedLog.args.tokenIds[0]
         : undefined
     setTokenId(_tokenId)
     setStatus('complete')
@@ -300,7 +275,7 @@ export const useSponsorTokenWithERC20 = () => {
       erc20Contract: Address,
       erc20AmountRequired: bigint,
     ) => {
-      verifyClientParameters()
+      if (!transmissionsClient) throw new Error('Invalid transmissions client')
 
       try {
         setStatus('pendingApproval')
@@ -312,7 +287,7 @@ export const useSponsorTokenWithERC20 = () => {
         setStatus('txInProgress')
 
         // we will just always ask for approval so we don't accidentally cause the browser to block indirect popups by adding a check for allowance
-        const id = await eip5792WalletClient!.writeContracts({
+        const id = await transmissionsClient._walletClient!.extend(walletActionsEip5792())!.writeContracts({
           contracts: [
             {
               address: erc20Contract,
@@ -359,7 +334,7 @@ export const useSponsorTokenWithERC20 = () => {
       erc20Contract: Address,
       erc20AmountRequired: bigint,
     ) => {
-      verifyClientParameters()
+      if (!transmissionsClient) throw new Error('Invalid transmissions client')
 
       try {
         setStatus('pendingApproval')
@@ -368,11 +343,13 @@ export const useSponsorTokenWithERC20 = () => {
 
         // read the users current allowance for the token
 
-        const allowance = await fetchAllowance(
-          erc20Contract,
-          args.channelAddress as Address,
-          args.to as Address,
-        )
+        const allowance = await transmissionsClient._publicClient!.readContract({
+          address: erc20Contract,
+          abi: erc20Abi,
+          functionName: 'allowance',
+          args: [args.channelAddress as Address, args.to as Address]
+        })
+
 
         // if the allowance is less than the mint price, send an approval request
 
@@ -394,11 +371,11 @@ export const useSponsorTokenWithERC20 = () => {
           const event = events?.[0]
           const decodedLog = event
             ? decodeEventLog({
-                abi: erc20Abi,
-                data: event.data,
-                // @ts-ignore
-                topics: event.topics,
-              })
+              abi: erc20Abi,
+              data: event.data,
+              // @ts-ignore
+              topics: event.topics,
+            })
             : undefined
 
           // @ts-ignore
@@ -445,31 +422,6 @@ export const useMintTokenBatchWithERC20 = () => {
   const [txHash, setTxHash] = useState<string>()
   const [error, setError] = useState<RequestError>()
 
-  const eip5792WalletClient = useMemo(() => {
-    if (transmissionsClient._walletClient)
-      return transmissionsClient._walletClient.extend(walletActionsEip5792())
-  }, [transmissionsClient._walletClient])
-
-  const verifyClientParameters = useCallback(() => {
-    if (!transmissionsClient) throw new Error('Invalid transmissions client')
-    if (!transmissionsClient._walletClient)
-      throw new Error('Wallet client required')
-    if (!transmissionsClient._publicClient)
-      throw new Error('Public client required')
-  }, [transmissionsClient])
-
-  const fetchAllowance = useCallback(
-    async (erc20Contract: Address, channelAddress: Address, user: Address) => {
-      return transmissionsClient._publicClient!.readContract({
-        address: erc20Contract,
-        abi: erc20Abi,
-        functionName: 'allowance',
-        args: [user, channelAddress as Address],
-      })
-    },
-    [transmissionsClient],
-  )
-
   const decodeMintLogs = async (txHash: Hash) => {
     const events = await transmissionsClient.getTransactionEvents({
       txHash,
@@ -483,11 +435,11 @@ export const useMintTokenBatchWithERC20 = () => {
 
     const decodedLog = event
       ? decodeEventLog({
-          abi: [...infiniteChannelAbi, ...finiteChannelAbi],
-          data: event.data,
-          // @ts-ignore
-          topics: event.topics,
-        })
+        abi: [...infiniteChannelAbi, ...finiteChannelAbi],
+        data: event.data,
+        // @ts-ignore
+        topics: event.topics,
+      })
       : undefined
 
     // @ts-ignore
@@ -502,7 +454,7 @@ export const useMintTokenBatchWithERC20 = () => {
       erc20Contract: Address,
       erc20AmountRequired: bigint,
     ) => {
-      verifyClientParameters()
+      if (!transmissionsClient) throw new Error('Invalid transmissions client')
 
       try {
         setStatus('pendingApproval')
@@ -511,7 +463,7 @@ export const useMintTokenBatchWithERC20 = () => {
         setStatus('txInProgress')
 
         // we will just always ask for approval so we don't accidentally cause the browser to block indirect popups by adding a check for allowance
-        const id = await eip5792WalletClient!.writeContracts({
+        const id = await transmissionsClient._walletClient!.extend(walletActionsEip5792())!.writeContracts({
           contracts: [
             {
               address: erc20Contract,
@@ -557,7 +509,7 @@ export const useMintTokenBatchWithERC20 = () => {
       erc20Contract: Address,
       erc20AmountRequired: bigint,
     ) => {
-      verifyClientParameters()
+      if (!transmissionsClient) throw new Error('Invalid transmissions client')
 
       try {
         setStatus('pendingApproval')
@@ -566,11 +518,12 @@ export const useMintTokenBatchWithERC20 = () => {
 
         // read the users current allowance for the token
 
-        const allowance = await fetchAllowance(
-          erc20Contract,
-          args.channelAddress as Address,
-          args.to as Address,
-        )
+        const allowance = await transmissionsClient._publicClient!.readContract({
+          address: erc20Contract,
+          abi: erc20Abi,
+          functionName: 'allowance',
+          args: [args.channelAddress as Address, args.to as Address]
+        })
 
         // if the allowance is less than the mint price, send an approval request
 
@@ -591,11 +544,11 @@ export const useMintTokenBatchWithERC20 = () => {
           const event = events?.[0]
           const decodedLog = event
             ? decodeEventLog({
-                abi: erc20Abi,
-                data: event.data,
-                // @ts-ignore
-                topics: event.topics,
-              })
+              abi: erc20Abi,
+              data: event.data,
+              // @ts-ignore
+              topics: event.topics,
+            })
             : undefined
 
           // @ts-ignore
