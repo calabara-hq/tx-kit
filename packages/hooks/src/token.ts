@@ -244,19 +244,6 @@ export const useSponsorTokenWithERC20 = () => {
       return transmissionsClient._walletClient.extend(walletActionsEip5792())
   }, [transmissionsClient._walletClient])
 
-  const isAtomicBatchSupported: Promise<boolean> = useMemo(async () => {
-    try {
-      if (!eip5792WalletClient) return false
-      const capabilities = await eip5792WalletClient.getCapabilities()
-      return (
-        capabilities?.[transmissionsClient._chainId]?.atomicBatch?.supported ??
-        false
-      )
-    } catch (e) {
-      return false
-    }
-  }, [transmissionsClient, eip5792WalletClient])
-
   const verifyClientParameters = useCallback(() => {
     if (!transmissionsClient) throw new Error('Invalid transmissions client')
     if (!transmissionsClient._walletClient)
@@ -388,7 +375,7 @@ export const useSponsorTokenWithERC20 = () => {
     [transmissionsClient],
   )
 
-  const sponsorTokenWithERC20_EoaTwoStep = useCallback(
+  const sponsorTokenWithERC20 = useCallback(
     async (
       args: SponsorTokenConfig,
       erc20Contract: Address,
@@ -461,23 +448,8 @@ export const useSponsorTokenWithERC20 = () => {
   )
 
   return {
-    sponsorTokenWithERC20: async (
-      args: SponsorTokenConfig,
-      erc20Contract: Address,
-      erc20AmountRequired: bigint,
-    ) => {
-      return (await isAtomicBatchSupported)
-        ? sponsorTokenWithERC20_smartWallet(
-            args,
-            erc20Contract,
-            erc20AmountRequired,
-          )
-        : sponsorTokenWithERC20_EoaTwoStep(
-            args,
-            erc20Contract,
-            erc20AmountRequired,
-          )
-    },
+    sponsorTokenWithERC20,
+    sponsorTokenWithERC20_smartWallet,
     tokenId,
     status,
     txHash,
@@ -499,19 +471,6 @@ export const useMintTokenBatchWithERC20 = () => {
     if (transmissionsClient._walletClient)
       return transmissionsClient._walletClient.extend(walletActionsEip5792())
   }, [transmissionsClient._walletClient])
-
-  const isAtomicBatchSupported: Promise<boolean> = useMemo(async () => {
-    try {
-      if (!eip5792WalletClient) return false
-      const capabilities = await eip5792WalletClient.getCapabilities()
-      return (
-        capabilities?.[transmissionsClient._chainId]?.atomicBatch?.supported ??
-        false
-      )
-    } catch (e) {
-      return false
-    }
-  }, [transmissionsClient, eip5792WalletClient])
 
   const verifyClientParameters = useCallback(() => {
     if (!transmissionsClient) throw new Error('Invalid transmissions client')
@@ -640,7 +599,7 @@ export const useMintTokenBatchWithERC20 = () => {
     [transmissionsClient],
   )
 
-  const mintTokenBatchWithERC20_EoaTwoStep = useCallback(
+  const mintTokenBatchWithERC20 = useCallback(
     async (
       args: MintTokenBatchConfig,
       erc20Contract: Address,
@@ -713,22 +672,8 @@ export const useMintTokenBatchWithERC20 = () => {
   )
 
   return {
-    mintTokenBatchWithERC20: async (
-      args: MintTokenBatchConfig,
-      erc20Contract: Address,
-      erc20AmountRequired: bigint,
-    ) =>
-      (await isAtomicBatchSupported)
-        ? mintTokenBatchWithERC20_smartWallet(
-            args,
-            erc20Contract,
-            erc20AmountRequired,
-          )
-        : mintTokenBatchWithERC20_EoaTwoStep(
-            args,
-            erc20Contract,
-            erc20AmountRequired,
-          ),
+    mintTokenBatchWithERC20,
+    mintTokenBatchWithERC20_smartWallet,
     status,
     txHash,
     error,
