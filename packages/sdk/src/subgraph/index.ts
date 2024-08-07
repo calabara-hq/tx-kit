@@ -2,7 +2,7 @@ import { gql, createClient, Client, fetchExchange } from '@urql/core'
 import { ApiConfig } from '../types'
 import { BASE_MAINNET_SUBGRAPH_URL } from '../constants'
 
-const CHANNEL_FRAGMENT = gql`
+export const CHANNEL_FRAGMENT = gql`
     fragment ChannelFragment on Channel {
         id
         name
@@ -18,7 +18,7 @@ const CHANNEL_FRAGMENT = gql`
     }
 `
 
-const TRANSPORT_LAYER_FRAGMENT = gql`
+export const TRANSPORT_LAYER_FRAGMENT = gql`
     fragment TransportLayerFragment on TransportLayer {
         id
         type
@@ -44,7 +44,7 @@ const TRANSPORT_LAYER_FRAGMENT = gql`
     }
 `
 
-const LOGIC_CONFIG_FRAGMENT = gql`
+export const LOGIC_CONFIG_FRAGMENT = gql`
     fragment LogicConfigFragment on LogicConfig {
         id
         logicContract
@@ -63,7 +63,7 @@ const LOGIC_CONFIG_FRAGMENT = gql`
     }
 
 `
-const FEE_CONFIG_FRAGMENT = gql`
+export const FEE_CONFIG_FRAGMENT = gql`
     fragment FeeConfigFragment on FeeConfig {
         id
         type
@@ -84,7 +84,7 @@ const FEE_CONFIG_FRAGMENT = gql`
     }
 `
 
-const TOKEN_FRAGMENT = gql`
+export const TOKEN_FRAGMENT = gql`
     fragment TokenFragment on Token {
       id
       tokenId

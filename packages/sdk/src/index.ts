@@ -10,3 +10,5 @@ export * from './utils/validate'
 
 export * from './constants'
 export * from './subgraph/types'
+export * from './subgraph/utils'
+export * from './subgraph'
