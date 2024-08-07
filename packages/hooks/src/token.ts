@@ -309,64 +309,42 @@ export const useSponsorTokenWithERC20 = () => {
 
         // read the users current allowance for the token
 
-        const allowance = await fetchAllowance(
-          erc20Contract,
-          args.channelAddress as Address,
-          args.to as Address,
-        )
-        // if the allowance is less than the mint price, send an approval request
+        setStatus('txInProgress')
 
-        if (allowance < erc20AmountRequired) {
-          setStatus('txInProgress')
-
-          const id = await eip5792WalletClient!.writeContracts({
-            contracts: [
-              {
-                address: erc20Contract,
-                abi: erc20Abi,
-                functionName: 'approve',
-                args: [
-                  args.channelAddress as Address,
-                  erc20AmountRequired * BigInt(20),
-                ],
-              },
-              // todo: do some validation / checks here from sdk
-              {
-                address: args.channelAddress as Address,
-                abi: [...infiniteChannelAbi, ...finiteChannelAbi],
-                functionName: 'sponsorWithERC20',
-                args: [
-                  args.sponsoredToken.intent.message,
-                  args.sponsoredToken.author,
-                  args.sponsoredToken.signature,
-                  args.to as Address,
-                  BigInt(args.amount),
-                  (args.mintReferral as Address) || zeroAddress,
-                  args.data as Hex,
-                ],
-              },
-            ],
-
-            capabilities: {
-              paymasterService: {
-                url: transmissionsClient._paymasterConfig?.paymasterUrl ?? '',
-              },
+        // we will just always ask for approval so we don't accidentally cause the browser to block indirect popups by adding a check for allowance
+        const id = await eip5792WalletClient!.writeContracts({
+          contracts: [
+            {
+              address: erc20Contract,
+              abi: erc20Abi,
+              functionName: 'approve',
+              args: [args.channelAddress as Address, erc20AmountRequired],
             },
-          })
+            // todo: do some validation / checks here from sdk
+            {
+              address: args.channelAddress as Address,
+              abi: [...infiniteChannelAbi, ...finiteChannelAbi],
+              functionName: 'sponsorWithERC20',
+              args: [
+                args.sponsoredToken.intent.message,
+                args.sponsoredToken.author,
+                args.sponsoredToken.signature,
+                args.to as Address,
+                BigInt(args.amount),
+                (args.mintReferral as Address) || zeroAddress,
+                args.data as Hex,
+              ],
+            },
+          ],
 
-          return decodeSponsorLogs(id as Hash)
-        } else {
-          // mint the token
+          capabilities: {
+            paymasterService: {
+              url: transmissionsClient._paymasterConfig?.paymasterUrl ?? '',
+            },
+          },
+        })
 
-          setStatus('txInProgress')
-
-          const { txHash } =
-            await transmissionsClient.submitSponsorTokenWithERC20Transaction(
-              args,
-            )
-
-          return decodeSponsorLogs(txHash)
-        }
+        return decodeSponsorLogs(id as Hash)
       } catch (e) {
         setStatus('error')
         setError(e)
@@ -530,67 +508,41 @@ export const useMintTokenBatchWithERC20 = () => {
         setStatus('pendingApproval')
         setError(undefined)
         setTxHash(undefined)
+        setStatus('txInProgress')
 
-        // read the users current allowance for the token
-
-        const allowance = await fetchAllowance(
-          erc20Contract,
-          args.channelAddress as Address,
-          args.to as Address,
-        )
-        // if the allowance is less than the mint price, send an approval request
-
-        if (allowance < erc20AmountRequired) {
-          setStatus('txInProgress')
-
-          const id = await eip5792WalletClient!.writeContracts({
-            contracts: [
-              {
-                address: erc20Contract,
-                abi: erc20Abi,
-                functionName: 'approve',
-                args: [
-                  args.channelAddress as Address,
-                  erc20AmountRequired * BigInt(20),
-                ],
-              },
-
-              {
-                address: args.channelAddress as Address,
-                abi: [...infiniteChannelAbi, ...finiteChannelAbi],
-                functionName: 'mintBatchWithERC20',
-                args: [
-                  args.to as Address,
-                  args.tokenIds,
-                  args.amounts.map((a) => BigInt(a)),
-                  (args.mintReferral as Address) || zeroAddress,
-                  args.data as Hex,
-                ],
-              },
-            ],
-
-            capabilities: {
-              paymasterService: {
-                url: transmissionsClient._paymasterConfig?.paymasterUrl ?? '',
-              },
+        // we will just always ask for approval so we don't accidentally cause the browser to block indirect popups by adding a check for allowance
+        const id = await eip5792WalletClient!.writeContracts({
+          contracts: [
+            {
+              address: erc20Contract,
+              abi: erc20Abi,
+              functionName: 'approve',
+              args: [args.channelAddress as Address, erc20AmountRequired],
             },
-          })
 
-          setTxHash(id)
-          decodeMintLogs(id as Hash)
-        } else {
-          // mint the token directly
+            {
+              address: args.channelAddress as Address,
+              abi: [...infiniteChannelAbi, ...finiteChannelAbi],
+              functionName: 'mintBatchWithERC20',
+              args: [
+                args.to as Address,
+                args.tokenIds,
+                args.amounts.map((a) => BigInt(a)),
+                (args.mintReferral as Address) || zeroAddress,
+                args.data as Hex,
+              ],
+            },
+          ],
 
-          setStatus('txInProgress')
+          capabilities: {
+            paymasterService: {
+              url: transmissionsClient._paymasterConfig?.paymasterUrl ?? '',
+            },
+          },
+        })
 
-          const { txHash } =
-            await transmissionsClient.submitMintTokenBatchWithERC20Transaction(
-              args,
-            )
-
-          setTxHash(txHash)
-          decodeMintLogs(txHash)
-        }
+        setTxHash(id)
+        decodeMintLogs(id as Hash)
       } catch (e) {
         setStatus('error')
         setError(e)
