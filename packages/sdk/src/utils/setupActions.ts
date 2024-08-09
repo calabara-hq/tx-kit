@@ -1,8 +1,8 @@
-import { Address, encodeFunctionData, Hex, zeroAddress, zeroHash } from "viem"
-import { channelAbi } from "../abi/index"
-import { encodeDynamicLogicInputs } from "../utils/logic"
-import { encodeCustomFeeInputs } from "../utils/fees"
-import { isChannelFeeArguments, isChannelLogicArguments, SetupAction } from "../types"
+import { Address, encodeFunctionData, Hex, zeroAddress } from "viem"
+import { channelAbi } from "../abi/index.js"
+import { encodeDynamicLogicInputs } from "../utils/logic.js"
+import { encodeCustomFeeInputs } from "../utils/fees.js"
+import { isChannelFeeArguments, isChannelLogicArguments, SetupAction } from "../types.js"
 
 
 export const createSetupActions = (actions: SetupAction[]): Hex[] => {

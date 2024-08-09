@@ -1,5 +1,5 @@
 export { TransmissionsClient } from '@tx-kit/sdk'
-export { TransmissionsProvider, TransmissionsContext } from './context'
+export { TransmissionsProvider, TransmissionsContext } from './context.js'
 export type { UplinkClient, DownlinkClient } from '@tx-kit/sdk'
 
 export {
@@ -7,7 +7,7 @@ export {
   useUpdateMetadata,
   useUpdateChannelFees,
   useUpgradeChannel,
-} from './channel'
+} from './channel.js'
 
 export {
   useCreateToken,
@@ -16,10 +16,10 @@ export {
   useMintTokenBatchWithERC20,
   useSponsorTokenWithETH,
   useSponsorTokenWithERC20,
-} from './token'
+} from './token.js'
 
-export { useApproveERC20 } from './helpers'
+export { useApproveERC20 } from './helpers.js'
 
-export { useTransmissionsClient } from './client'
+export { useTransmissionsClient } from './client.js'
 
-export { useMulticall } from './multicall'
+export { useMulticall } from './multicall.js'

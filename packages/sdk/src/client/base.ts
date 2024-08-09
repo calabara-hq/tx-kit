@@ -11,7 +11,6 @@ import {
     Transport,
     Chain,
     Account,
-    WalletCallReceipt,
     WalletCapabilities,
 } from 'viem'
 import {
@@ -19,10 +18,10 @@ import {
     InvalidPaymasterError,
     MissingPublicClientError,
     MissingWalletClientError,
-} from '../errors'
-import { TransmissionsClientConfig, TransactionConfig, TransactionOverrides, TransactionFormat, CallData, MulticallConfig, PaymasterConfig } from '../types';
-import { TransactionType } from '../constants';
-import { channelAbi } from '../abi/index';
+} from '../errors.js'
+import { TransmissionsClientConfig, TransactionConfig, TransactionOverrides, TransactionFormat, CallData, MulticallConfig, PaymasterConfig } from '../types.js';
+import { TransactionType } from '../constants.js';
+import { channelAbi } from '../abi/index.js';
 import { GetCallsStatusReturnType, walletActionsEip5792 } from 'viem/experimental'
 
 

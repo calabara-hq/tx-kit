@@ -1,6 +1,6 @@
 import { Address, decodeEventLog, erc20Abi, Hash, Hex, zeroAddress } from 'viem'
-import { useCallback, useContext, useMemo, useState } from 'react'
-import { ContractExecutionStatus, RequestError } from './types'
+import { useCallback, useContext, useState } from 'react'
+import { ContractExecutionStatus, RequestError } from './types.js'
 import {
   CreateTokenConfig,
   DeferredTokenIntentWithSignature,
@@ -9,13 +9,12 @@ import {
 } from '@tx-kit/sdk'
 import {
   channelAbi,
-  channelFactoryAbi,
   infiniteChannelAbi,
   finiteChannelAbi,
 } from '@tx-kit/sdk/abi'
 
-import { TransmissionsContext } from './context'
-import { getTransmissionsClient } from './utils'
+import { TransmissionsContext } from './context.js'
+import { getTransmissionsClient } from './utils.js'
 import { walletActionsEip5792 } from 'viem/experimental'
 
 export const useCreateToken = () => {
@@ -211,6 +210,7 @@ export const useSponsorTokenWithETH = () => {
 
         const _tokenId =
           decodedLog?.eventName === 'TokenMinted'
+                // @ts-ignore
             ? decodedLog.args.tokenIds[0]
             : undefined
 
@@ -259,11 +259,11 @@ export const useSponsorTokenWithERC20 = () => {
       : undefined
 
     const _tokenId =
-      // @ts-ignore
       decodedLog?.eventName === 'TokenMinted'
-        ? // @ts-ignore
-          decodedLog.args.tokenIds[0]
+      // @ts-ignore
+        ?  decodedLog?.args?.tokenIds[0]
         : undefined
+
     setTokenId(_tokenId)
     setStatus('complete')
     return { tokenId: _tokenId, events }
@@ -482,7 +482,7 @@ export const useMintTokenBatchWithERC20 = () => {
                 args: [
                   args.to as Address,
                   args.tokenIds,
-                  args.amounts.map((a) => BigInt(a)),
+                  args.amounts.map((a: number | string) => BigInt(a)),
                   (args.mintReferral as Address) || zeroAddress,
                   args.data as Hex,
                 ],

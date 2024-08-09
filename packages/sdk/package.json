@@ -1,11 +1,14 @@
 {
   "name": "@tx-kit/sdk",
+  "type": "module",
+  "main": "./src/_cjs/index.js",
+  "module": "./src/_esm/index.js",
+  "types": "./src/_types/index.d.ts",
+  "typings": "./src/_types/index.d.ts",
+  "sideEffects": false,
   "version": "0.4.13-alpha.0",
   "license": "MIT",
   "author": "uplink (https://uplink.wtf)",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "sideEffects": false,
   "publishConfig": {
     "access": "public"
   },
@@ -17,34 +20,60 @@
   "bugs": {
     "url": "https://github.com/calabara-hq/tx-kit/issues"
   },
+  "files": [
+    "*",
+    "!**/*.test.ts",
+    "!**/*.tsbuildinfo",
+    "!tsconfig.build.json"
+  ],
   "exports": {
-    ".": "./dist/index.js",
-    "./constants": "./dist/constants.js",
-    "./abi": "./dist/abi/index.js",
-    "./errors": "./dist/errors.js",
-    "./types": "./dist/types.js",
-    "./utils": "./dist/utils/index.js",
-    "./utils/validation": "./dist/utils/validation.js"
+    ".": {
+      "types": "./src/_types/index.d.ts",
+      "import": "./src/_esm/index.js",
+      "default": "./src/_cjs/index.js"
+    },
+    "./errors": {
+      "types": "./src/_types/errors.d.ts",
+      "import": "./src/_esm/errors.js",
+      "default": "./src/_cjs/errors.js"
+    },
+    "./constants": {
+      "types": "./src/_types/constants.d.ts",
+      "import": "./src/_esm/constants.js",
+      "default": "./src/_cjs/constants.js"
+    },
+    "./abi": {
+      "types": "./src/_types/abi/index.d.ts",
+      "import": "./src/_esm/abi/index.js",
+      "default": "./src/_cjs/abi/index.js"
+    },
+    "./utils": {
+      "types": "./src/_types/utils/index.d.ts",
+      "import": "./src/_esm/utils/index.js",
+      "default": "./src/_cjs/utils/index.js"
+    },
+    "./subgraph": {
+      "types": "./src/_types/subgraph/index.d.ts",
+      "import": "./src/_esm/subgraph/index.js",
+      "default": "./src/_cjs/subgraph/index.js"
+    }
   },
   "typesVersions": {
     "*": {
       "constants": [
-        "./dist/constants.d.ts"
-      ],
-      "abi": [
-        "./dist/abi/index.d.ts"
+        "./src/_types/constants.d.ts"
       ],
       "errors": [
-        "./dist/errors.d.ts"
+        "./src/_types/abi/errors.d.ts"
       ],
-      "types": [
-        "./dist/types.d.ts"
+      "abi": [
+        "./src/_types/abi/index.d.ts"
       ],
       "utils": [
-        "./dist/utils/index.d.ts"
+        "./src/_types/utils/index.d.ts"
       ],
-      "utils/validation": [
-        "./dist/utils/validation.d.ts"
+      "subgraph": [
+        "./src/_types/subgraph/index.d.ts"
       ]
     }
   },
@@ -55,11 +84,53 @@
     "transmissions"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm -rf dist && tsc",
     "analyze": "source-map-explorer 'dist/**/*.js' --no-border-checks --html analyze.html",
+    "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
+    "build:cjs": "tsc --project ./tsconfig.build.json --module commonjs --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json",
+    "build:esm": "tsc --project ./tsconfig.build.json --module es2020 --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
+    "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
+    "clean": "rm -rf *.tsbuildinfo src/*.tsbuildinfo src/_esm src/_cjs src/_types",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "size": "size-limit",
     "vitest": "vitest fork"
   },
+  "size-limit": [
+    {
+      "name": "import * from @tx-kit/sdk (esm)",
+      "path": "./src/_esm/index.js",
+      "limit": "50 kB",
+      "import": "*"
+    },
+    {
+      "name": "const sdk = require('@tx-kit/sdk') (cjs)",
+      "path": "./src/_cjs/index.js",
+      "limit": "160 kB"
+    },
+    {
+      "name": "import { TransmissionsClient } from @tx-kit/sdk",
+      "path": "./src/_esm/index.js",
+      "limit": "50 kB",
+      "import": "{ TransmissionsClient }"
+    },
+    {
+      "name": "import * from @tx-kit/sdk/abi",
+      "path": "./src/_esm/abi/index.js",
+      "limit": "5 kB",
+      "import": "*"
+    },
+    {
+      "name": "import * from @tx-kit/sdk/utils",
+      "path": "./src/_esm/utils/index.js",
+      "limit": "12 kB",
+      "import": "*"
+    },
+    {
+      "name": "import * from @tx-kit/sdk/subgraph",
+      "path": "./src/_esm/subgraph/index.js",
+      "limit": "10 kB",
+      "import": "*"
+    }
+  ],
   "peerDependenciesMeta": {
     "viem": {
       "optional": true
@@ -69,11 +140,10 @@
     "@urql/core": "^4.3.0",
     "base-64": "^1.0.0",
     "graphql": "^16.8.1",
-    "lodash": "^4.17.21"
+    "nanoid": "^5.0.7"
   },
   "devDependencies": {
     "@types/base-64": "^1.0.1",
-    "@types/lodash": "^4.14.200",
     "@viem/anvil": "^0.0.9",
     "vitest": "^1.6.0"
   },

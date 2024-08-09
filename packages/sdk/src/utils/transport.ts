@@ -1,7 +1,7 @@
 import { Address, encodeAbiParameters } from "viem"
-import { Hex } from "viem/_types"
-import { DeferredTokenIntent, DeferredTokenIntentWithSignature, FiniteTransportLayer, InfiniteTransportLayer } from "../types"
-import { normalizeTimestamp } from "./numbers"
+import type {Hex} from "viem"
+import { FiniteTransportLayer, InfiniteTransportLayer } from "../types.js"
+import { normalizeTimestamp } from "./numbers.js"
 
 
 export const createInfiniteTransportLayerInput = (input: InfiniteTransportLayer): Hex => {

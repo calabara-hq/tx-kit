@@ -1,6 +1,6 @@
 import { TransmissionsClient, TransmissionsClientConfig } from '@tx-kit/sdk'
 import { useContext, useEffect } from 'react'
-import { TransmissionsContext } from './context'
+import { TransmissionsContext } from './context.js'
 
 export const useTransmissionsClient = (
   config?: TransmissionsClientConfig,

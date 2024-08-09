@@ -1,6 +1,7 @@
 {
   "name": "@tx-kit/hooks",
   "version": "0.5.23-alpha.0",
+  "type": "module",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "MIT",
@@ -17,9 +18,18 @@
     "url": "https://github.com/calabara-hq/tx-kit/issues"
   },
   "scripts": {
+    "analyze": "source-map-explorer 'dist/**/*.js' --no-border-checks --html analyze.html",
     "build": "rm -rf dist && tsc",
-    "analyze": "source-map-explorer 'dist/**/*.js' --no-border-checks --html analyze.html"
+    "size": "size-limit"
   },
+  "size-limit": [
+    {
+      "name": "import * from @tx-kit/hooks",
+      "path": "./dist/index.js",
+      "limit": "21 kB",
+      "import": "*"
+    }
+  ],
   "keywords": [
     "tx-kit",
     "uplink",

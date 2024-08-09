@@ -1,6 +1,6 @@
 import { Address, decodeEventLog } from 'viem'
 import { useCallback, useContext, useState } from 'react'
-import { ContractExecutionStatus, RequestError } from './types'
+import { ContractExecutionStatus, RequestError } from './types.js'
 import {
   CreateInfiniteChannelConfig,
   UpdateChannelMetadataConfig,
@@ -13,8 +13,8 @@ import {
   channelFactoryAbi,
   infiniteChannelAbi,
 } from '@tx-kit/sdk/abi'
-import { TransmissionsContext } from './context'
-import { getTransmissionsClient } from './utils'
+import { TransmissionsContext } from './context.js'
+import { getTransmissionsClient } from './utils.js'
 
 export const useCreateInfiniteChannel = () => {
   const context = useContext(TransmissionsContext)

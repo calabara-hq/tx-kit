@@ -1,14 +1,9 @@
-import { TransmissionsClient } from './client/index'
-import { UplinkClient } from './client/uplink'
-import { DownlinkClient } from './client/downlink'
+import { TransmissionsClient } from './client/index.js'
+import { UplinkClient } from './client/uplink.js'
+import { DownlinkClient } from './client/downlink.js'
 
 export { TransmissionsClient, UplinkClient, DownlinkClient }
 
-export * from './types'
-export * from './errors'
-export * from './utils/validate'
-
-export * from './constants'
-export * from './subgraph/types'
-export * from './subgraph/utils'
-export * from './subgraph'
+export * from './types.js'
+export * from './errors.js'
+export * from './constants.js'

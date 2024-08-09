@@ -1,7 +1,7 @@
-import { Chain, createPublicClient, http, PublicClient, Transport, zeroAddress } from "viem";
-import { DownlinkClient } from "../client/downlink";
-import { InvalidConfigError } from "../errors";
-import { BASE_SEPOLIA_SUBGRAPH_URL } from "../constants";
+import { Chain, createPublicClient, http, PublicClient, Transport } from "viem";
+import { DownlinkClient } from "../client/downlink.js";
+import { InvalidConfigError } from "../errors.js";
+import { BASE_SEPOLIA_SUBGRAPH_URL } from "../constants.js";
 import { baseSepolia } from "viem/chains";
 const mockPublicClient = jest.fn(() => {
     return {} as unknown as PublicClient<Transport, Chain>

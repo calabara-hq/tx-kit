@@ -1,4 +1,3 @@
-import { GqlVariables } from "subgraph"
 import { Address } from "viem"
 
 type Scalars = {
@@ -6,6 +5,10 @@ type Scalars = {
     String: string
     Boolean: boolean
     Int: number
+}
+
+export type GqlVariables = {
+    [key: string]: string | number | boolean | undefined | string[] | object
 }
 
 export type Filters = {

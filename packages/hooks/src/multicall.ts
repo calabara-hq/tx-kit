@@ -1,8 +1,8 @@
 import { useCallback, useContext, useState } from 'react'
-import { ContractExecutionStatus, RequestError } from './types'
+import { ContractExecutionStatus, RequestError } from './types.js'
 import { MulticallConfig } from '@tx-kit/sdk'
-import { TransmissionsContext } from './context'
-import { getTransmissionsClient } from './utils'
+import { TransmissionsContext } from './context.js'
+import { getTransmissionsClient } from './utils.js'
 
 export const useMulticall = () => {
   const context = useContext(TransmissionsContext)

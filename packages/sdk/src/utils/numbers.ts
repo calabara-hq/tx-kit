@@ -1,5 +1,5 @@
-import { PERCENTAGE_SCALE } from '../constants'
-import { formatUnits, maxUint40, parseUnits } from 'viem'
+import { PERCENTAGE_SCALE } from '../constants.js'
+import { formatUnits, maxUint40 } from 'viem'
 
 export const normalizeTimestamp = (timestamp: number): number => {
     const max = Number(maxUint40);

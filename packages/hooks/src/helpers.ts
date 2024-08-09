@@ -1,10 +1,10 @@
 import { decodeEventLog, erc20Abi } from 'viem'
 import { useCallback, useContext, useState } from 'react'
-import { ContractExecutionStatus, RequestError } from './types'
+import { ContractExecutionStatus, RequestError } from './types.js'
 import { ApproveERC20Config } from '@tx-kit/sdk'
 
-import { TransmissionsContext } from './context'
-import { getTransmissionsClient } from './utils'
+import { TransmissionsContext } from './context.js'
+import { getTransmissionsClient } from './utils.js'
 
 export const useApproveERC20 = () => {
   const context = useContext(TransmissionsContext)

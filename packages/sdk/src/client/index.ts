@@ -1,8 +1,8 @@
-import { TransmissionsClientConfig } from '../types';
-import { DownlinkClient } from './downlink';
-import { UplinkClient } from './uplink';
-import { TransactionType } from '../constants';
-import { BaseTransactions } from './base';
+import { TransmissionsClientConfig } from '../types.js';
+import { DownlinkClient } from './downlink.js';
+import { UplinkClient } from './uplink.js';
+import { TransactionType } from '../constants.js';
+import { BaseTransactions } from './base.js';
 
 
 export class TransmissionsClient extends BaseTransactions {

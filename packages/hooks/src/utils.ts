@@ -1,5 +1,5 @@
 import { TransmissionsClient } from '@tx-kit/sdk'
-import { TxReactSdkContext } from './context'
+import { TxReactSdkContext } from './context.js'
 
 export const getTransmissionsClient = (
   context: TxReactSdkContext | undefined,

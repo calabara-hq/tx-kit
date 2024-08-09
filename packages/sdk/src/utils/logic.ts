@@ -1,5 +1,5 @@
 import { Address, encodeAbiParameters, Hex, zeroAddress, zeroHash } from "viem"
-import { LogicOperators, LogicInteractionPowerTypes, DynamicLogicInputs } from "../types";
+import { LogicOperators, LogicInteractionPowerTypes, DynamicLogicInputs } from "../types.js";
 
 
 class LogicBuilderBase {

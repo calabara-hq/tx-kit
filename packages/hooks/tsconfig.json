@@ -1,8 +1,10 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "baseUrl": "./src",
   "compilerOptions": {
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true
   },
   "include": ["./src"],
   "exclude": [

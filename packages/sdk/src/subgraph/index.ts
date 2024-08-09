@@ -1,6 +1,6 @@
 import { gql, createClient, Client, fetchExchange } from '@urql/core'
-import { ApiConfig } from '../types'
-import { BASE_MAINNET_SUBGRAPH_URL } from '../constants'
+import { ApiConfig } from '../types.js'
+import { BASE_MAINNET_SUBGRAPH_URL } from '../constants.js'
 
 export const CHANNEL_FRAGMENT = gql`
     fragment ChannelFragment on Channel {
@@ -193,12 +193,6 @@ export const _channelUpgradeEventsQuery = gql`
         }
     }
 `
-
-
-export type GqlVariables = {
-    [key: string]: string | number | boolean | undefined | string[] | object
-}
-
 export const getGraphqlClient = (apiConfig?: ApiConfig): Client => {
     const serverURL = apiConfig?.serverUrl ?? BASE_MAINNET_SUBGRAPH_URL
 

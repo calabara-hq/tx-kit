@@ -11,19 +11,19 @@ import {
     zeroAddress,
 } from 'viem'
 
-import { randomBytes } from 'crypto'
-import { getChannelFactoryAddress, getCustomFeesAddress, INTENT_DURATION, SUPPORTED_CHAIN_IDS, TransactionType } from "../constants"
-import { ApproveERC20Config, CallData, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, CreateTokenConfig, DeferredTokenIntent, DeferredTokenIntentWithSignature, MintTokenBatchConfig, MintTokenConfig, SetChannelFeeConfig, SetChannelLogicConfig, SponsorTokenConfig, TransactionConfig, TransactionFormat, TransactionOverridesDict, TransmissionsClientConfig, UpdateChannelMetadataConfig, UpdateInfiniteChannelTransportLayerConfig, UpgradeChannelImplConfig, WithdrawRewardsConfig } from "../types"
-import { TransactionFailedError, UnsupportedChainIdError } from '../errors'
+import {customAlphabet} from 'nanoid'
+import { getChannelFactoryAddress, getCustomFeesAddress, INTENT_DURATION, SUPPORTED_CHAIN_IDS, TransactionType } from "../constants.js"
+import { ApproveERC20Config, CallData, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, CreateTokenConfig, DeferredTokenIntent, DeferredTokenIntentWithSignature, MintTokenBatchConfig, MintTokenConfig, SetChannelFeeConfig, SetChannelLogicConfig, SponsorTokenConfig, TransactionConfig, TransactionFormat, TransactionOverridesDict, TransmissionsClientConfig, UpdateChannelMetadataConfig, UpdateInfiniteChannelTransportLayerConfig, UpgradeChannelImplConfig, WithdrawRewardsConfig } from "../types.js"
+import { TransactionFailedError, UnsupportedChainIdError } from '../errors.js'
 
-import { channelAbi, channelFactoryAbi, customFeesAbi, dynamicLogicAbi, finiteChannelAbi, infiniteChannelAbi, rewardsAbi } from '../abi/index'
-import { validateAddress, validateApproveERC20Inputs, validateCreateTokenInputs, validateFiniteChannelInputs, validateInfiniteChannelInputs, validateInfiniteTransportLayer, validateMintTokenBatchInputs, validateSetFeeInputs, validateSetLogicInputs, validateSponsorTokenInputs, validateWithdrawRewardsInputs } from '../utils/validate'
-import { BaseClientMixin, BaseGasEstimatesMixin, BaseTransactions } from './base'
-import { applyMixins } from './mixin'
-import { encodeDynamicLogicInputs } from '../utils/logic'
-import { encodeCustomFeeInputs } from '../utils/fees'
-import { createSetupActions } from '../utils/setupActions'
-import { createFiniteTransportLayerInput, createInfiniteTransportLayerInput } from '../utils/transport'
+import { channelAbi, channelFactoryAbi, customFeesAbi, dynamicLogicAbi, finiteChannelAbi, infiniteChannelAbi, rewardsAbi } from '../abi/index.js'
+import { validateAddress, validateApproveERC20Inputs, validateCreateTokenInputs, validateFiniteChannelInputs, validateInfiniteChannelInputs, validateInfiniteTransportLayer, validateMintTokenBatchInputs, validateSetFeeInputs, validateSetLogicInputs, validateSponsorTokenInputs, validateWithdrawRewardsInputs } from '../utils/validate.js'
+import { BaseClientMixin, BaseGasEstimatesMixin, BaseTransactions } from './base.js'
+import { applyMixins } from './mixin.js'
+import { encodeDynamicLogicInputs } from '../utils/logic.js'
+import { encodeCustomFeeInputs } from '../utils/fees.js'
+import { createSetupActions } from '../utils/setupActions.js'
+import { createFiniteTransportLayerInput, createInfiniteTransportLayerInput } from '../utils/transport.js'
 
 
 class UplinkTransactions extends BaseTransactions {
@@ -918,7 +918,7 @@ export class UplinkClient extends UplinkTransactions {
                     uri: createTokenArgs.uri,
                     maxSupply: createTokenArgs.maxSupply,
                     deadline: BigInt(Math.floor(Date.now() / 1000)) + INTENT_DURATION,
-                    nonce: `0x${randomBytes(32).toString('hex')}` as Hex
+                    nonce: `0x${customAlphabet('0123456789abcdef', 64)}` as Hex
                 }
             }
         }
@@ -1299,7 +1299,7 @@ class UplinkCallData extends UplinkTransactions {
     async createInfiniteChannel(createInfiniteChannelArgs: CreateInfiniteChannelConfig): Promise<CallData> {
         const result = await this._createInfiniteChannelTransaction(createInfiniteChannelArgs)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1307,7 +1307,7 @@ class UplinkCallData extends UplinkTransactions {
     async createFiniteChannel(createFiniteChannelArgs: CreateFiniteChannelConfig): Promise<CallData> {
         const result = await this._createFiniteChannelTransaction(createFiniteChannelArgs)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1315,7 +1315,7 @@ class UplinkCallData extends UplinkTransactions {
     async updateChannelFees(updateChannelFeeArgs: SetChannelFeeConfig): Promise<CallData> {
         const result = await this._createUpdateChannelFeesTransaction(updateChannelFeeArgs)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1323,7 +1323,7 @@ class UplinkCallData extends UplinkTransactions {
     async updateChannelLogic(updateChanelLogicArgs: SetChannelLogicConfig): Promise<CallData> {
         const result = await this._createUpdateChannelLogicTransaction(updateChanelLogicArgs)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1331,7 +1331,7 @@ class UplinkCallData extends UplinkTransactions {
     async updateChannelMetadata(updateChannelMetadataArgs: UpdateChannelMetadataConfig): Promise<CallData> {
         const result = await this._createUpdateChannelMetadataTransaction(updateChannelMetadataArgs)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1339,7 +1339,7 @@ class UplinkCallData extends UplinkTransactions {
     async updateInfiniteChannelTransportLayer(updateInfiniteChannelTransportLayerArgs: UpdateInfiniteChannelTransportLayerConfig): Promise<CallData> {
         const result = await this._createUpdateInfiniteChannelTransportLayerTransaction(updateInfiniteChannelTransportLayerArgs)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1347,7 +1347,7 @@ class UplinkCallData extends UplinkTransactions {
     async settleFiniteChannel(settleFiniteChannelArgs: { channelAddress: Address }): Promise<CallData> {
         const result = await this._createSettleFiniteChannelTransaction(settleFiniteChannelArgs)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1355,7 +1355,7 @@ class UplinkCallData extends UplinkTransactions {
     async createToken(createTokenArgs: CreateTokenConfig): Promise<CallData> {
         const result = await this._createTokenTransaction(createTokenArgs)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1367,7 +1367,7 @@ class UplinkCallData extends UplinkTransactions {
             amounts: [mintTokenArgs.amount]
         })
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1375,7 +1375,7 @@ class UplinkCallData extends UplinkTransactions {
     async mintTokenBatchWithETH(mintTokenArgs: MintTokenBatchConfig): Promise<CallData> {
         const result = await this._mintTokenBatchWithETHTransaction(mintTokenArgs)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1387,7 +1387,7 @@ class UplinkCallData extends UplinkTransactions {
             amounts: [mintTokenArgs.amount]
         })
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1395,7 +1395,7 @@ class UplinkCallData extends UplinkTransactions {
     async mintTokenBatchWithERC20(mintTokenArgs: MintTokenBatchConfig): Promise<CallData> {
         const result = await this._mintTokenBatchWithERC20Transaction(mintTokenArgs)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1403,7 +1403,7 @@ class UplinkCallData extends UplinkTransactions {
     async sponsorWithERC20(sponsorTokenArgs: SponsorTokenConfig): Promise<CallData> {
         const result = await this._sponsorTokenWithERC20Transaction(sponsorTokenArgs)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1411,7 +1411,7 @@ class UplinkCallData extends UplinkTransactions {
     async sponsorWithETH(sponsorTokenArgs: SponsorTokenConfig): Promise<CallData> {
         const result = await this._sponsorTokenWithETHTransaction(sponsorTokenArgs)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1419,7 +1419,7 @@ class UplinkCallData extends UplinkTransactions {
     async adminWithdrawFiniteChannelRewards(withdrawRewardsArgs: WithdrawRewardsConfig): Promise<CallData> {
         const result = await this._withdrawFiniteRewardsTransaction(withdrawRewardsArgs)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1427,7 +1427,7 @@ class UplinkCallData extends UplinkTransactions {
     async approveERC20(approveERC20Args: ApproveERC20Config): Promise<CallData> {
         const result = await this._approveERC20(approveERC20Args)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }
@@ -1435,7 +1435,7 @@ class UplinkCallData extends UplinkTransactions {
     async upgradeChannel(upgradeChannelArgs: UpgradeChannelImplConfig): Promise<CallData> {
         const result = await this._upgradeChannel(upgradeChannelArgs)
         if (this._isCallData(result)) {
-            return result
+            return result as CallData
         }
         throw new Error('Invalid Response')
     }

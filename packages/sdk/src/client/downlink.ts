@@ -6,14 +6,13 @@ import {
     PublicClient,
     Transport,
     getAddress,
-    zeroAddress,
 } from 'viem'
-import { InvalidConfigError, MissingPublicClientError, UnsupportedSubgraphChainIdError } from '../errors'
-import { DownlinkClientConfig } from '../types'
-import { GetAllChannelsQuery, GetChannelQuery, GetChannelUpgradesQuery, GetTokensQuery, GqlChannel, GqlToken, GqlUpgradePath, IChannel, IToken, IUpgradePath } from '../subgraph/types'
-import { _allChannelsQuery, _channelQuery, _channelUpgradeEventsQuery, _paginatedChannelTokensQuery, getGraphqlClient, GqlVariables } from '../subgraph'
-import { formatGqlChannel, formatGqlTokens, formatGqlTransportLayer, formatGqlUpgradePath } from '../subgraph/utils'
-import { orderBy } from 'lodash'
+import { InvalidConfigError, MissingPublicClientError, UnsupportedSubgraphChainIdError } from '../errors.js'
+import { DownlinkClientConfig } from '../types.js'
+import { GetAllChannelsQuery, GetChannelQuery, GetChannelUpgradesQuery, GetTokensQuery, GqlChannel, GqlToken, GqlUpgradePath, IChannel, IToken, IUpgradePath } from '../subgraph/types.js'
+import { _allChannelsQuery, _channelQuery, _channelUpgradeEventsQuery, _paginatedChannelTokensQuery, getGraphqlClient } from '../subgraph/index.js'
+import {GqlVariables} from '../subgraph/types.js'
+import { formatGqlChannel, formatGqlTokens, formatGqlUpgradePath } from '../subgraph/utils.js'
 
 export class DownlinkClient {
     readonly _ensPublicClient: PublicClient<Transport, Chain> | undefined

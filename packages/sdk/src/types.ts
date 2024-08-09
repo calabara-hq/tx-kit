@@ -7,12 +7,11 @@ import type {
   Hex,
   PublicClient,
   Transport,
-  TypedDataDefinition,
   WalletClient,
   zeroAddress,
 } from 'viem'
 
-import { TransactionType } from './constants'
+import { TransactionType } from './constants.js'
 
 export type ApiConfig = {
   serverUrl?: string

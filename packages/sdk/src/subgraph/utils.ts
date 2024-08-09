@@ -1,6 +1,6 @@
 import { getAddress, zeroAddress } from "viem";
-import { GqlChannel, GqlCustomFees, GqlDynamicLogic, GqlFeeConfig, GqlLogicConfig, GqlToken, GqlTokenMetadata, GqlTransportLayer, GqlUpgradePath, IChannel, ICustomFees, IDynamicLogic, IFeeConfig, IFiniteTransportConfig, ILogicConfig, InteractionPowerTypes, IToken, ITokenMetadata, ITransportLayer, IUpgradePath } from "./types";
-import { fromBigIntToPercent } from "../utils/numbers";
+import { GqlChannel, GqlCustomFees, GqlDynamicLogic, GqlFeeConfig, GqlLogicConfig, GqlToken, GqlTokenMetadata, GqlTransportLayer, GqlUpgradePath, IChannel, ICustomFees, IDynamicLogic, IFeeConfig, ILogicConfig, InteractionPowerTypes, IToken, ITokenMetadata, ITransportLayer, IUpgradePath } from "./types.js";
+import { fromBigIntToPercent } from "../utils/numbers.js";
 
 export const formatGqlTransportLayer = (transportLayer: GqlTransportLayer): ITransportLayer => {
 

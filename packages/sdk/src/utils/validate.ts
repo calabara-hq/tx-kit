@@ -1,8 +1,8 @@
-import { InvalidArgumentError } from "../errors";
-import { ApproveERC20Config, ChannelFeeArguments, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, CreateTokenConfig, DeferredTokenIntentWithSignature, DynamicLogicInputs, FiniteTransportLayer, InfiniteTransportLayer, isChannelFeeArguments, isChannelLogicArguments, LogicInteractionPowerTypes, MintTokenBatchConfig, SetupAction, SponsorTokenConfig, WithdrawRewardsConfig } from "../types";
-import { isAddress, recoverTypedDataAddress, zeroAddress } from 'viem'
-import { MAX_PRECISION_DECIMALS } from "../constants";
-import { roundToDecimals } from "./numbers";
+import { InvalidArgumentError } from "../errors.js";
+import { ApproveERC20Config, ChannelFeeArguments, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, CreateTokenConfig, DynamicLogicInputs, FiniteTransportLayer, InfiniteTransportLayer, isChannelFeeArguments, isChannelLogicArguments, MintTokenBatchConfig, SetupAction, SponsorTokenConfig, WithdrawRewardsConfig } from "../types.js";
+import { isAddress } from 'viem'
+import { MAX_PRECISION_DECIMALS } from "../constants.js";
+import { roundToDecimals } from "./numbers.js";
 
 const getNumDigitsAfterDecimal = (value: number): number => {
     if (Number.isInteger(value)) return 0

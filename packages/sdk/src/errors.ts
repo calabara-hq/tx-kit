@@ -1,4 +1,4 @@
-import { SUPPORTED_CHAIN_IDS } from './constants'
+import { SUPPORTED_CHAIN_IDS } from './constants.js'
 
 export class TransactionFailedError extends Error {
   name = 'TransactionFailedError'

@@ -1,6 +1,6 @@
 import { encodeAbiParameters, Hex, zeroHash, Address } from "viem";
-import { CustomFeeInputs } from "../types";
-import { getNumberFromPercent } from "./numbers";
+import { CustomFeeInputs } from "../types.js";
+import { getNumberFromPercent } from "./numbers.js";
 
 export const encodeCustomFeeInputs = (input: CustomFeeInputs): Hex => {
 
