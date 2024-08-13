@@ -4,6 +4,7 @@ export type { UplinkClient, DownlinkClient } from '@tx-kit/sdk'
 
 export {
   useCreateInfiniteChannel,
+  useCreateFiniteChannel,
   useUpdateMetadata,
   useUpdateChannelFees,
   useUpgradeChannel,

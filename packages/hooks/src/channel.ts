@@ -7,6 +7,7 @@ import {
   SetChannelFeeConfig,
   UpdateInfiniteChannelTransportLayerConfig,
   UpgradeChannelImplConfig,
+  CreateFiniteChannelConfig,
 } from '@tx-kit/sdk'
 import {
   channelAbi,
@@ -74,6 +75,66 @@ export const useCreateInfiniteChannel = () => {
   )
 
   return { createInfiniteChannel, channelAddress, status, txHash, error }
+}
+
+export const useCreateFiniteChannel = () => {
+  const context = useContext(TransmissionsContext)
+  const transmissionsClient = getTransmissionsClient(context).uplinkClient
+
+  const [channelAddress, setChannelAddress] = useState<Address>()
+  const [status, setStatus] = useState<ContractExecutionStatus>()
+  const [txHash, setTxHash] = useState<string>()
+  const [error, setError] = useState<RequestError>()
+
+  const createFiniteChannel = useCallback(
+    async (args: CreateFiniteChannelConfig) => {
+      if (!transmissionsClient) throw new Error('Invalid transmissions client')
+      try {
+        setStatus('pendingApproval')
+        setChannelAddress(undefined)
+        setError(undefined)
+        setTxHash(undefined)
+
+        const { txHash: hash } =
+          await transmissionsClient.submitCreateFiniteChannelTransaction(args)
+        setStatus('txInProgress')
+        setTxHash(hash)
+
+        const events = await transmissionsClient.getTransactionEvents({
+          txHash: hash,
+          eventTopics: transmissionsClient.eventTopics.createFiniteChannel,
+        })
+
+        const event = events?.[0]
+
+        // use the txHash from the event if it exists in order to accomodate cb smart wallet
+        if (event.transactionHash) setTxHash(event.transactionHash)
+
+        const decodedLog = event
+          ? decodeEventLog({
+              abi: channelFactoryAbi,
+              data: event.data,
+              topics: event.topics,
+            })
+          : undefined
+
+        const contractAddress =
+          decodedLog?.eventName === 'SetupNewContract'
+            ? decodedLog.args.contractAddress
+            : undefined
+
+        setChannelAddress(contractAddress)
+        setStatus('complete')
+        return events
+      } catch (e) {
+        setStatus('error')
+        setError(e)
+      }
+    },
+    [transmissionsClient],
+  )
+
+  return { createFiniteChannel, channelAddress, status, txHash, error }
 }
 
 export const useUpdateMetadata = () => {
