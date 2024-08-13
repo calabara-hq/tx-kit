@@ -1,6 +1,6 @@
 {
   "name": "@tx-kit/hooks",
-  "version": "0.6.0-alpha.0",
+  "version": "0.6.1-alpha.0",
   "type": "module",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
