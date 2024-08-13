@@ -11,7 +11,7 @@ import {
     zeroAddress,
 } from 'viem'
 
-import {customAlphabet} from 'nanoid'
+import { customAlphabet } from 'nanoid'
 import { getChannelFactoryAddress, getCustomFeesAddress, INTENT_DURATION, SUPPORTED_CHAIN_IDS, TransactionType } from "../constants.js"
 import { ApproveERC20Config, CallData, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, CreateTokenConfig, DeferredTokenIntent, DeferredTokenIntentWithSignature, MintTokenBatchConfig, MintTokenConfig, SetChannelFeeConfig, SetChannelLogicConfig, SponsorTokenConfig, TransactionConfig, TransactionFormat, TransactionOverridesDict, TransmissionsClientConfig, UpdateChannelMetadataConfig, UpdateInfiniteChannelTransportLayerConfig, UpgradeChannelImplConfig, WithdrawRewardsConfig } from "../types.js"
 import { TransactionFailedError, UnsupportedChainIdError } from '../errors.js'
@@ -896,6 +896,11 @@ export class UplinkClient extends UplinkTransactions {
         if (this._shouldRequireWalletClient) this._requireWalletClient()
         if (!this._walletClient?.account) throw new Error()
 
+        const genRandomBytes = () => {
+            const nanoid = customAlphabet('0123456789abcdef', 64);
+            return `0x${nanoid()}` as `0x${string}`;
+        }
+
         return {
             author: this._walletClient?.account.address as Address,
             intent: {
@@ -918,7 +923,7 @@ export class UplinkClient extends UplinkTransactions {
                     uri: createTokenArgs.uri,
                     maxSupply: createTokenArgs.maxSupply,
                     deadline: BigInt(Math.floor(Date.now() / 1000)) + INTENT_DURATION,
-                    nonce: `0x${customAlphabet('0123456789abcdef', 64)}` as Hex
+                    nonce: genRandomBytes()
                 }
             }
         }

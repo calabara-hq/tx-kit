@@ -1,12 +1,13 @@
 import { createTestClient, Hex, http, publicActions, walletActions, zeroAddress } from "viem";
-import { NATIVE_TOKEN } from "../constants";
-import { InvalidArgumentError } from "../errors";
-import { UniformInteractionPower, WeightedInteractionPower } from "../utils/logic";
-import { validateAddress, validateCreateTokenInputs, validateFeePercentage, validateFiniteChannelInputs, validateFiniteTransportLayer, validateInfiniteChannelInputs, validateInfiniteTransportLayer, validateMintTokenBatchInputs, validateSetFeeInputs, validateSetLogicInputs, validateSetupActions, validateSponsorTokenInputs, validateWithdrawRewardsInputs } from "../utils/validate";
-import { baseSepolia, foundry } from "viem/chains";
-import { DeferredTokenIntent, SponsorTokenConfig } from "../types";
+import { NATIVE_TOKEN } from "../constants.js";
+import { InvalidArgumentError } from "../errors.js";
+import { UniformInteractionPower, WeightedInteractionPower } from "../utils/logic.js";
+import { validateAddress, validateCreateTokenInputs, validateFeePercentage, validateFiniteChannelInputs, validateFiniteTransportLayer, validateInfiniteChannelInputs, validateInfiniteTransportLayer, validateMintTokenBatchInputs, validateSetFeeInputs, validateSetLogicInputs, validateSetupActions, validateSponsorTokenInputs, validateWithdrawRewardsInputs } from "../utils/validate.js";
+import { baseSepolia } from "viem/chains";
+import { DeferredTokenIntent, SponsorTokenConfig } from "../types.js";
 import { privateKeyToAccount } from "viem/accounts";
 import { randomBytes } from "crypto";
+import { describe, expect, test } from 'vitest'
 
 
 const testClient = createTestClient({

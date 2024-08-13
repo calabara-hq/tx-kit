@@ -1,61 +1,47 @@
 import {
     Account,
     Chain,
-    ContractFunctionExecutionError,
-    ContractFunctionRevertedError,
-    createPublicClient,
     createTestClient,
-    createWalletClient,
-    Hex,
     http,
     Log,
-    parseEther,
-    publicActions,
     PublicClient,
     Transport,
-    walletActions,
     WalletClient,
     zeroAddress,
 } from 'viem'
+import { getCapabilities } from 'viem/experimental';
+import { UplinkClient } from "../client/uplink.js";
+import { MissingPublicClientError, MissingWalletClientError } from '../errors.js';
+import { CreateFiniteChannelConfig, CreateInfiniteChannelConfig } from '../types.js';
+import { MockViemContract } from './mocks/viemContract.js';
+import { uplinkActions, downlinkActions } from './mocks/mocks.js'
+import { NATIVE_TOKEN } from '../constants.js';
+import { describe, expect, test, vitest, beforeEach } from 'vitest'
 
-import { UplinkClient } from "../client/uplink";
-import { MissingPublicClientError, MissingWalletClientError } from '../errors';
-import { CreateFiniteChannelConfig, CreateInfiniteChannelConfig } from '../types';
-import { MockViemContract } from './mocks/viemContract';
-import { uplinkActions, downlinkActions } from './mocks/mocks'
-import { baseSepolia, foundry } from 'viem/chains';
-import { NATIVE_TOKEN } from '../constants';
-
-const testClient = createTestClient({
-    chain: baseSepolia,
-    transport: http(),
-    mode: 'anvil'
-})
 
 const testAccount = '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC';
-const baseSepoliaWETH = '0xA3842e1625FaeF792f61eBD3c3bEaE2132564BcC'
 
-jest.mock('viem', () => {
-    const originalModule = jest.requireActual('viem')
+vitest.mock('viem', async (importOriginal) => {
+    const originalModule = await importOriginal();
     return {
         ...originalModule,
-        getContract: jest.fn(() => {
-            return new MockViemContract(downlinkActions, uplinkActions)
+        getContract: vitest.fn(() => {
+            return new MockViemContract(downlinkActions, uplinkActions);
         }),
-        getAddress: jest.fn((address) => address),
-        decodeEventLog: jest.fn(() => {
+        getAddress: vitest.fn((address) => address),
+        decodeEventLog: vitest.fn(() => {
             return {
                 eventName: 'SetupNewContract',
                 args: {
                     contractAddress: '0xchannel',
                 },
-            }
+            };
         }),
-    }
-})
-const mockPublicClient = jest.fn(() => {
+    };
+});
+const mockPublicClient = vitest.fn(() => {
     return {
-        simulateContract: jest.fn(
+        simulateContract: vitest.fn(
             async ({
                 functionName,
                 args,
@@ -67,20 +53,36 @@ const mockPublicClient = jest.fn(() => {
                 type writeKeys = keyof writeActionsType
                 uplinkActions[functionName as writeKeys].call(this, ...args)
 
-                return { request: jest.mock }
+                return { request: vitest.mock }
             },
         ),
     } as unknown as PublicClient<Transport, Chain>
 })
 
-const mockWalletClient = jest.fn(() => {
+const mockWalletClient = vitest.fn(() => {
     return {
         account: {
             address: testAccount
         },
-        writeContract: jest.fn(() => {
+        writeContract: vitest.fn(() => {
             return '0xhash'
         }),
+        extend: vitest.fn(() => {
+            return {
+                account: {
+                    address: testAccount
+                },
+                writeContract: vitest.fn(() => {
+                    return '0xhash'
+                }),
+                getCapabilities: vitest.fn(async () => {
+                    return {}
+                }),
+                writeContracts: vitest.fn(() => {
+                    return '0xhash'
+                })
+            }
+        })
     } as unknown as WalletClient<Transport, Chain, Account>
 })
 
@@ -90,7 +92,7 @@ describe("Client write operations", () => {
     const walletClient = new mockWalletClient();
     const uplinkClient = new UplinkClient({ chainId: 84532, publicClient, walletClient })
 
-    const getTransactionEventsSpy = jest
+    const getTransactionEventsSpy = vitest
         .spyOn(uplinkClient, 'getTransactionEvents')
         .mockImplementation(async () => {
             const event = {
@@ -104,9 +106,9 @@ describe("Client write operations", () => {
 
 
     beforeEach(() => {
-        //; (validateAddress as jest.Mock).mockClear()
-        //     ; (validateFiniteChannelInputs as jest.Mock).mockClear()
-        //     ; (validateInfiniteChannelInputs as jest.Mock).mockClear()
+        //; (validateAddress as vitest.Mock).mockClear()
+        //     ; (validateFiniteChannelInputs as vitest.Mock).mockClear()
+        //     ; (validateInfiniteChannelInputs as vitest.Mock).mockClear()
         getTransactionEventsSpy.mockClear()
     })
 

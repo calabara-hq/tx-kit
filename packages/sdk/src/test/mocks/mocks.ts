@@ -1,11 +1,12 @@
+import { vitest } from 'vitest'
 export const uplinkActions = {
-    createInfiniteChannel: jest.fn(),
-    createFiniteChannel: jest.fn(),
-    updateChannelFees: jest.fn(),
-    updateChannelLogic: jest.fn(),
-    updateInfiniteChannelTransportLayer: jest.fn(),
-    createToken: jest.fn(),
-    sponsorWithETH: jest.fn()
+    createInfiniteChannel: vitest.fn(),
+    createFiniteChannel: vitest.fn(),
+    updateChannelFees: vitest.fn(),
+    updateChannelLogic: vitest.fn(),
+    updateInfiniteChannelTransportLayer: vitest.fn(),
+    createToken: vitest.fn(),
+    sponsorWithETH: vitest.fn()
 
 }
 

@@ -3,7 +3,10 @@ import { DownlinkClient } from "../client/downlink.js";
 import { InvalidConfigError } from "../errors.js";
 import { BASE_SEPOLIA_SUBGRAPH_URL } from "../constants.js";
 import { baseSepolia } from "viem/chains";
-const mockPublicClient = jest.fn(() => {
+import { describe, expect, test, vitest } from 'vitest'
+
+
+const mockPublicClient = vitest.fn(() => {
     return {} as unknown as PublicClient<Transport, Chain>
 })
 
@@ -32,7 +35,7 @@ const createClient = () => {
         transport: http()
     })
     return new DownlinkClient({
-        publicClient: publicClient,
+        publicClient: publicClient as PublicClient<Transport, Chain>,
         apiConfig: {
             serverUrl: BASE_SEPOLIA_SUBGRAPH_URL
         }

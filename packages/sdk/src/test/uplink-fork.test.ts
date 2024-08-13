@@ -1,14 +1,14 @@
-import { testClient, walletClient, publicClient, BOB, CHANNEL_TREASURY, debugClient, resetBlockchainState, increaseEvmTime } from "./forkUtils"
-import { UplinkClient } from '../client/uplink'
+import { walletClient, publicClient, BOB, CHANNEL_TREASURY, increaseEvmTime } from "./forkUtils.js"
+import { UplinkClient } from '../client/uplink.js'
 import { baseSepolia } from 'viem/chains'
-import { Abi, Account, Address, Chain, ContractFunctionExecutionError, decodeEventLog, encodeAbiParameters, encodeEventTopics, erc20Abi, isAddress, parseEther, PublicClient, Transport, WalletClient, zeroAddress } from 'viem'
-import { ChannelFeeArguments, ChannelLogicArguments, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, SetupAction } from '../types'
-import { getChannelFactoryAddress, getCustomFeesAddress, getDynamicLogicAddress, NATIVE_TOKEN } from "../constants"
-import { baseSepoliaWETH, WETH_ABI, balanceOfERC20, allowanceOfERC20, mintERC20, setERC20Approval, ALICE } from "./forkUtils"
-import { UniformInteractionPower } from "../utils/logic"
-import { channelAbi, channelFactoryAbi, finiteChannelAbi, infiniteChannelAbi } from "../abi/index"
+import { Account, Address, Chain, ContractFunctionExecutionError, decodeEventLog, encodeAbiParameters, erc20Abi, isAddress, parseErc6492Signature, parseEther, PublicClient, Transport, WalletClient, zeroAddress } from 'viem'
+import { ChannelFeeArguments, ChannelLogicArguments, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, SetupAction } from '../types.js'
+import { getChannelFactoryAddress, getCustomFeesAddress, getDynamicLogicAddress, NATIVE_TOKEN } from "../constants.js"
+import { baseSepoliaWETH, allowanceOfERC20, mintERC20, setERC20Approval, ALICE } from "./forkUtils.js"
+import { UniformInteractionPower } from "../utils/logic.js"
+import { channelAbi, finiteChannelAbi, infiniteChannelAbi } from "../abi/index.js"
 
-import { describe, expect, test, beforeAll, beforeEach, afterEach, vi } from 'vitest'
+import { describe, expect, test, beforeEach } from 'vitest'
 
 
 const CUSTOM_FEES = getCustomFeesAddress(baseSepolia.id)
@@ -470,16 +470,17 @@ describe("Channel", () => {
             const client = createClient(ALICE)
             const { contractAddress: targetInfiniteChannel } = await client.createInfiniteChannel(generateInfiniteChannelArgs())
 
-            const result = client.createDeferredTokenIntent({
+            const intent = client.createDeferredTokenIntent({
                 channelAddress: targetInfiniteChannel,
                 uri: "token uri",
                 maxSupply: BigInt(1)
             })
 
-            const signature = await walletClient(ALICE).signTypedData(result.intent)
+            const sponsoredToken = await client.signDeferredTokenIntent(intent)
+
             const { event } = await client.sponsorWithETH({
                 channelAddress: targetInfiniteChannel,
-                sponsoredToken: { ...result, signature },
+                sponsoredToken,
                 to: ALICE,
                 amount: 1,
                 mintReferral: ALICE,
@@ -500,19 +501,19 @@ describe("Channel", () => {
             const client = createClient(ALICE)
             const { contractAddress: targetInfiniteChannel } = await client.createInfiniteChannel(generateInfiniteChannelArgs())
 
-            const result = client.createDeferredTokenIntent({
+            const intent = client.createDeferredTokenIntent({
                 channelAddress: targetInfiniteChannel,
                 uri: "token uri",
                 maxSupply: BigInt(1)
             })
 
-            const signature = await walletClient(ALICE).signTypedData(result.intent)
+            const sponsoredToken = await client.signDeferredTokenIntent(intent)
 
             await setERC20Approval(baseSepoliaWETH, targetInfiniteChannel, ALICE, parseEther('0.000666'))
 
             const { event } = await client.sponsorWithERC20({
                 channelAddress: targetInfiniteChannel,
-                sponsoredToken: { ...result, signature },
+                sponsoredToken,
                 to: ALICE,
                 amount: 1,
                 mintReferral: ALICE,

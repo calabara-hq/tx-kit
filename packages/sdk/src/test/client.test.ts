@@ -1,20 +1,17 @@
 import {
-    Account,
     Chain,
-    Log,
     PublicClient,
-    Transport,
-    WalletClient,
-    zeroAddress,
+    Transport
 } from 'viem'
 
-import { UplinkClient } from "../client/uplink";
-import { uplinkActions } from './mocks/mocks';
-import { InvalidConfigError, UnsupportedChainIdError } from '../errors';
+import { UplinkClient } from "../client/uplink.js";
+import { uplinkActions } from './mocks/mocks.js';
+import { InvalidConfigError, UnsupportedChainIdError } from '../errors.js';
+import { describe, expect, test, vitest } from 'vitest'
 
-const mockPublicClient = jest.fn(() => {
+const mockPublicClient = vitest.fn(() => {
     return {
-        simulateContract: jest.fn(
+        simulateContract: vitest.fn(
             async ({
                 functionName,
                 args,
@@ -26,7 +23,7 @@ const mockPublicClient = jest.fn(() => {
                 type writeKeys = keyof writeActionsType
                 uplinkActions[functionName as writeKeys].call(this, ...args)
 
-                return { request: jest.mock }
+                return { request: vitest.mock }
             },
         ),
     } as unknown as PublicClient<Transport, Chain>
