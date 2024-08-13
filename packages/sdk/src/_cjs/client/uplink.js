@@ -712,6 +712,10 @@ class UplinkClient extends UplinkTransactions {
             this._requireWalletClient();
         if (!this._walletClient?.account)
             throw new Error();
+        const genRandomBytes = () => {
+            const nanoid = (0, nanoid_1.customAlphabet)('0123456789abcdef', 64);
+            return `0x${nanoid()}`;
+        };
         return {
             author: this._walletClient?.account.address,
             intent: {
@@ -734,7 +738,7 @@ class UplinkClient extends UplinkTransactions {
                     uri: createTokenArgs.uri,
                     maxSupply: createTokenArgs.maxSupply,
                     deadline: BigInt(Math.floor(Date.now() / 1000)) + constants_js_1.INTENT_DURATION,
-                    nonce: `0x${(0, nanoid_1.customAlphabet)('0123456789abcdef', 64)}`
+                    nonce: genRandomBytes()
                 }
             }
         };

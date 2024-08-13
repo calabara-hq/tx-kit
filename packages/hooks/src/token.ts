@@ -210,8 +210,8 @@ export const useSponsorTokenWithETH = () => {
 
         const _tokenId =
           decodedLog?.eventName === 'TokenMinted'
-                // @ts-ignore
-            ? decodedLog.args.tokenIds[0]
+            ? // @ts-ignore
+              decodedLog.args.tokenIds[0]
             : undefined
 
         setTokenId(_tokenId)
@@ -260,8 +260,8 @@ export const useSponsorTokenWithERC20 = () => {
 
     const _tokenId =
       decodedLog?.eventName === 'TokenMinted'
-      // @ts-ignore
-        ?  decodedLog?.args?.tokenIds[0]
+        ? // @ts-ignore
+          decodedLog?.args?.tokenIds[0]
         : undefined
 
     setTokenId(_tokenId)
