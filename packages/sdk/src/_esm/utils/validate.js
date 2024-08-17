@@ -182,7 +182,7 @@ export const validateSponsorTokenInputs = async (inputs) => {
     if (currentTimestamp >= deadline) {
         throw new InvalidArgumentError(`Deferred token intent has expired`);
     }
-    if (inputs.channelAddress !== inputs.sponsoredToken.intent.domain.verifyingContract) {
+    if (inputs.channelAddress.toLowerCase() !== inputs.sponsoredToken.intent.domain.verifyingContract.toLowerCase()) {
         throw new InvalidArgumentError(`Channel addresses do not match`);
     }
     if (inputs.amount <= 0) {

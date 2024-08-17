@@ -239,7 +239,7 @@ export const validateSponsorTokenInputs = async (inputs: SponsorTokenConfig): Pr
         throw new InvalidArgumentError(`Deferred token intent has expired`)
     }
 
-    if (inputs.channelAddress !== inputs.sponsoredToken.intent.domain.verifyingContract) {
+    if (inputs.channelAddress.toLowerCase() !== inputs.sponsoredToken.intent.domain.verifyingContract.toLowerCase()) {
         throw new InvalidArgumentError(`Channel addresses do not match`)
     }
 
@@ -248,8 +248,6 @@ export const validateSponsorTokenInputs = async (inputs: SponsorTokenConfig): Pr
     }
 
 }
-
-
 
 export const validateWithdrawRewardsInputs = (inputs: WithdrawRewardsConfig): void => {
     validateAddress(inputs.channelAddress);
