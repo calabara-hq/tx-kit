@@ -1,4 +1,4 @@
-import { Address, decodeEventLog } from 'viem'
+import { Address, decodeEventLog, erc20Abi } from 'viem'
 import { useCallback, useContext, useState } from 'react'
 import { ContractExecutionStatus, RequestError } from './types.js'
 import {
@@ -8,10 +8,13 @@ import {
   UpdateInfiniteChannelTransportLayerConfig,
   UpgradeChannelImplConfig,
   CreateFiniteChannelConfig,
+  NATIVE_TOKEN,
+  getChannelFactoryAddress,
 } from '@tx-kit/sdk'
 import {
   channelAbi,
   channelFactoryAbi,
+  finiteChannelAbi,
   infiniteChannelAbi,
 } from '@tx-kit/sdk/abi'
 import { TransmissionsContext } from './context.js'
@@ -52,10 +55,10 @@ export const useCreateInfiniteChannel = () => {
 
         const decodedLog = event
           ? decodeEventLog({
-              abi: channelFactoryAbi,
-              data: event.data,
-              topics: event.topics,
-            })
+            abi: channelFactoryAbi,
+            data: event.data,
+            topics: event.topics,
+          })
           : undefined
 
         const contractAddress =
@@ -82,7 +85,9 @@ export const useCreateFiniteChannel = () => {
   const transmissionsClient = getTransmissionsClient(context).uplinkClient
 
   const [channelAddress, setChannelAddress] = useState<Address>()
-  const [status, setStatus] = useState<ContractExecutionStatus>()
+  const [status, setStatus] = useState<
+    ContractExecutionStatus | 'erc20ApprovalInProgress'
+  >()
   const [txHash, setTxHash] = useState<string>()
   const [error, setError] = useState<RequestError>()
 
@@ -94,6 +99,55 @@ export const useCreateFiniteChannel = () => {
         setChannelAddress(undefined)
         setError(undefined)
         setTxHash(undefined)
+
+        if (args.transportLayer.rewards.token !== NATIVE_TOKEN) {
+          /// erc20 token. need to check approvals
+
+          const channelFactoryAddress = getChannelFactoryAddress(transmissionsClient._chainId)
+
+          // read the users current allowance for the token
+
+          const allowance = await transmissionsClient._publicClient!.readContract(
+            {
+              address: args.transportLayer.rewards.token as Address,
+              abi: erc20Abi,
+              functionName: 'allowance',
+              args: [channelFactoryAddress, args.defaultAdmin as Address],
+            },
+          )
+
+          if (allowance < args.transportLayer.rewards.totalAllocation) {
+            setStatus('erc20ApprovalInProgress')
+            const { txHash: hash } =
+              await transmissionsClient.submitApproveERC20Transaction({
+                erc20Contract: args.transportLayer.rewards.token,
+                spender: channelFactoryAddress,
+                amount: args.transportLayer.rewards.totalAllocation
+              })
+
+            const events = await transmissionsClient.getTransactionEvents({
+              txHash: hash,
+              eventTopics: transmissionsClient.eventTopics.erc20Approved,
+            })
+
+            const event = events?.[0]
+            const decodedLog = event
+              ? decodeEventLog({
+                abi: erc20Abi,
+                data: event.data,
+                // @ts-ignore
+                topics: event.topics,
+              })
+              : undefined
+
+            // @ts-ignore
+            if (decodedLog?.eventName !== 'Approval') {
+              setStatus('error')
+              throw new Error('Approval failed')
+            }
+          }
+        }
+
 
         const { txHash: hash } =
           await transmissionsClient.submitCreateFiniteChannelTransaction(args)
@@ -112,10 +166,10 @@ export const useCreateFiniteChannel = () => {
 
         const decodedLog = event
           ? decodeEventLog({
-              abi: channelFactoryAbi,
-              data: event.data,
-              topics: event.topics,
-            })
+            abi: channelFactoryAbi,
+            data: event.data,
+            topics: event.topics,
+          })
           : undefined
 
         const contractAddress =
@@ -174,10 +228,10 @@ export const useUpdateMetadata = () => {
 
         const decodedLog = event
           ? decodeEventLog({
-              abi: channelAbi,
-              data: event.data,
-              topics: event.topics,
-            })
+            abi: channelAbi,
+            data: event.data,
+            topics: event.topics,
+          })
           : undefined
 
         const updatedData =
@@ -233,10 +287,10 @@ export const useUpdateChannelFees = () => {
 
         const decodedLog = event
           ? decodeEventLog({
-              abi: channelAbi,
-              data: event.data,
-              topics: event.topics,
-            })
+            abi: channelAbi,
+            data: event.data,
+            topics: event.topics,
+          })
           : undefined
 
         if (decodedLog?.eventName === 'ConfigUpdated') {
@@ -291,10 +345,10 @@ export const useUpdateInfiniteChannelTransportLayer = () => {
 
         const decodedLog = event
           ? decodeEventLog({
-              abi: infiniteChannelAbi,
-              data: event.data,
-              topics: event.topics,
-            })
+            abi: infiniteChannelAbi,
+            data: event.data,
+            topics: event.topics,
+          })
           : undefined
 
         if (decodedLog?.eventName === 'InfiniteTransportConfigSet') {
@@ -346,10 +400,10 @@ export const useUpgradeChannel = () => {
 
         const decodedLog = event
           ? decodeEventLog({
-              abi: channelAbi,
-              data: event.data,
-              topics: event.topics,
-            })
+            abi: channelAbi,
+            data: event.data,
+            topics: event.topics,
+          })
           : undefined
 
         if (decodedLog?.eventName === 'Upgraded') {
@@ -366,4 +420,59 @@ export const useUpgradeChannel = () => {
   )
 
   return { upgradeChannel, status, txHash, error }
+}
+
+export const useSettleFiniteChannel = () => {
+  const context = useContext(TransmissionsContext)
+  const transmissionsClient = getTransmissionsClient(context).uplinkClient
+
+  const [status, setStatus] = useState<ContractExecutionStatus>()
+  const [txHash, setTxHash] = useState<string>()
+  const [error, setError] = useState<RequestError>()
+
+  const settle = useCallback(
+    async (args: { channelAddress: Address }) => {
+      if (!transmissionsClient) throw new Error('Invalid transmissions client')
+      try {
+        setStatus('pendingApproval')
+        setError(undefined)
+        setTxHash(undefined)
+
+        const { txHash: hash } =
+          await transmissionsClient.submitSettleFiniteChannelTransaction(args)
+        setStatus('txInProgress')
+        setTxHash(hash)
+
+        const events = await transmissionsClient.getTransactionEvents({
+          txHash: hash,
+          eventTopics: transmissionsClient.eventTopics.settled,
+        })
+
+        const event = events?.[0]
+
+        // use the txHash from the event if it exists in order to accomodate cb smart wallet
+        if (event.transactionHash) setTxHash(event.transactionHash)
+
+        const decodedLog = event
+          ? decodeEventLog({
+            abi: finiteChannelAbi,
+            data: event.data,
+            topics: event.topics,
+          })
+          : undefined
+
+        if (decodedLog?.eventName === 'Settled') {
+          setStatus('complete')
+        }
+
+        return events
+      } catch (e) {
+        setStatus('error')
+        setError(e)
+      }
+    },
+    [transmissionsClient],
+  )
+
+  return { settle, status, txHash, error }
 }

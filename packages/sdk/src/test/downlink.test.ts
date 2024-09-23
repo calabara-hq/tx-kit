@@ -79,7 +79,7 @@ describe("Load channels", () => {
     })
 })
 
-describe.only("Get upgrade path", () => {
+describe("Get upgrade path", () => {
     test("get optimal upgrade path", async () => {
         const client = createClient();
         const path = await client.getOptimalUpgradePath({

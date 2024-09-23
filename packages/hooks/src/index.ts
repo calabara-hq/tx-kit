@@ -8,6 +8,7 @@ export {
   useUpdateMetadata,
   useUpdateChannelFees,
   useUpgradeChannel,
+  useSettleFiniteChannel
 } from './channel.js'
 
 export {

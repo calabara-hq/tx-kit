@@ -11,7 +11,7 @@ import { InvalidConfigError, MissingPublicClientError, UnsupportedSubgraphChainI
 import { DownlinkClientConfig } from '../types.js'
 import { GetAllChannelsQuery, GetChannelQuery, GetChannelUpgradesQuery, GetTokensQuery, GqlChannel, GqlToken, GqlUpgradePath, IChannel, IToken, IUpgradePath } from '../subgraph/types.js'
 import { _allChannelsQuery, _channelQuery, _channelUpgradeEventsQuery, _paginatedChannelTokensQuery, getGraphqlClient } from '../subgraph/index.js'
-import {GqlVariables} from '../subgraph/types.js'
+import { GqlVariables } from '../subgraph/types.js'
 import { formatGqlChannel, formatGqlTokens, formatGqlUpgradePath } from '../subgraph/utils.js'
 
 export class DownlinkClient {
