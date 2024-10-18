@@ -1,6 +1,6 @@
 import { walletClient, publicClient, BOB, CHANNEL_TREASURY, increaseEvmTime } from "./forkUtils.js"
 import { UplinkClient } from '../client/uplink.js'
-import { baseSepolia } from 'viem/chains'
+import { base, baseSepolia } from 'viem/chains'
 import { Account, Address, Chain, ContractFunctionExecutionError, decodeEventLog, encodeAbiParameters, erc20Abi, isAddress, parseErc6492Signature, parseEther, PublicClient, Transport, WalletClient, zeroAddress } from 'viem'
 import { ChannelFeeArguments, ChannelLogicArguments, CreateFiniteChannelConfig, CreateInfiniteChannelConfig, SetupAction } from '../types.js'
 import { getChannelFactoryAddress, getCustomFeesAddress, getDynamicLogicAddress, NATIVE_TOKEN } from "../constants.js"
@@ -594,6 +594,28 @@ describe("Channel", () => {
             await expect(async () => {
                 await client.upgradeChannel({ channelAddress: targetInfiniteChannel, newImplementation: zeroAddress })
             }).rejects.toThrow(ContractFunctionExecutionError)
+        })
+    })
+
+
+    describe.only("scratch pad", () => {
+        test("scratch pad", async () => {
+            const newLogic: SetupAction =
+            {
+                logicContract: getDynamicLogicAddress(base.id),
+                creatorLogic: [
+                    new UniformInteractionPower(BigInt(10)).ifResultOf(baseSepoliaWETH, '0x70a08231', erc20BalanceOfData).gt(BigInt(1))
+                ],
+                minterLogic: [
+                    new UniformInteractionPower(BigInt(10)).ifResultOf(baseSepoliaWETH, '0x70a08231', erc20BalanceOfData).gt(BigInt(1))
+                ]
+            }
+
+
+
+
+
+            //minterLogic: [new UniformInteractionPower(BigInt(10)).ifResultOf(baseSepoliaWETH, '0x70a08231', erc20BalanceOfData).gt(BigInt(1))]
         })
     })
 
